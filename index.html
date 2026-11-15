@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<!-- 画面拡大を許可するため maximum-scale=1.0, user-scalable=no を削除し、セーフエリアに対応 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>シン・超速！危険物ちゃんねる 乙４フラッシュ</title>
 <style>
@@ -49,6 +48,10 @@
   .bar-seg-perfect { background: var(--accent-green); transition: width 0.3s; }
   .bar-seg-learning { background: var(--accent-amber); transition: width 0.3s; }
 
+  /* β版お知らせ用スタイル */
+  .beta-notice { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; margin-bottom: 4px; color: #475569; font-size: 11.5px; line-height: 1.6; }
+  .beta-badge { display: inline-block; background: #3b82f6; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; margin-bottom: 8px; letter-spacing: 0.5px; }
+
   .mode-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
   .mode-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 12px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
   .mode-btn:active:not(:disabled) { transform: scale(0.98); }
@@ -68,6 +71,7 @@
   .progress-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--primary); transition: width 0.25s; }
 
+  /* 修正: カード位置を上に固定し、回答後のガタつきを防止 */
   .card-stage { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 16px; position: relative; min-height: 290px; user-select: none; touch-action: pan-y; }
   .flash-card { width: 100%; background: var(--surface); border-radius: 22px; padding: 22px 20px; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1); border: 2px solid var(--border); position: relative; transition: transform 0.2s ease, border-color 0.15s, background-color 0.15s; cursor: grab; min-height: 260px; display: flex; flex-direction: column; justify-content: space-between; }
   .flash-card.dragging { transition: none; cursor: grabbing; }
@@ -154,6 +158,13 @@
       <div id="sync-info" style="font-size:10px; color:var(--muted); text-align:right; margin-top:6px;"></div>
     </div>
 
+    <!-- β版公開中のお知らせ -->
+    <div class="beta-notice">
+      <div class="beta-badge">β版公開中</div>
+      <div style="margin-bottom:8px;">このアプリは現在、ベータ版として公開しています。問題文・正解・解説などに誤りや分かりにくい点が見つかる可能性があります。</div>
+      <div>「この問題、間違っているかも？」「解説が分かりにくい」と感じた場合は、ぜひ問題画面の「問題を報告」からお知らせください。いただいた報告を確認し、より正確で使いやすい学習アプリになるよう改善していきます。皆さまのご協力をよろしくお願いいたします。</div>
+    </div>
+
     <div class="mode-grid">
       <button class="mode-btn normal-mode" id="start-normal">
         <div class="mode-title"><span>📖 全問出題 (通常モード)</span><span class="pill-count" id="normal-count">0問</span></div>
@@ -213,7 +224,6 @@
       <button class="ox-btn btn-x" id="btn-ans-x" aria-label="誤りと回答する"><span>×</span><span class="ox-sub">誤り (←)</span></button>
       <button class="ox-btn btn-o" id="btn-ans-o" aria-label="正しいと回答する"><span>〇</span><span class="ox-sub">正しい (→)</span></button>
     </div>
-    <!-- クイズ中 (正解時自動遷移前など) でも報告できるようカード下部に配置 -->
     <div id="inline-report-container" style="text-align:right; margin-top:8px;">
         <button class="report-btn btn-report-q" aria-label="この問題の不具合を報告する">⚑ 問題を報告</button>
     </div>
@@ -239,7 +249,7 @@
   </main>
 </div>
 
-<!-- 検索モーダル (A11y対応 フォーカストラップ) -->
+<!-- 検索モーダル -->
 <div class="modal-backdrop hidden" id="modal-browser" role="dialog" aria-modal="true" aria-labelledby="browser-title">
   <div class="modal-sheet" id="modal-sheet-content">
     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -267,20 +277,17 @@ let ALL_QUESTIONS = [];
 let cacheMeta = { version: 1, lastSyncTime: null };
 let toastTimeout = null;
 
-// 非同期通信の競合制御
 let isProcessingPending = false;
 let reportingSet = new Set(); 
 
-// クイズセッション
 let session = null;
 let soundEnabled = true, audioCtx = null;
-let lastFocusedElement = null; // モーダル開閉用フォーカストラップ
+let lastFocusedElement = null; 
 
 // ==========================================
 // 2. データ検証と永続化 (Validation & I/O)
 // ==========================================
 function isValidId(id) { return typeof id === 'string' && id.trim().length > 0; }
-// __proto__ 汚染防止
 function isSafeKey(key) { return key !== '__proto__' && key !== 'constructor' && key !== 'prototype'; }
 
 function validateProgress(data) {
@@ -387,7 +394,6 @@ async function initApp() {
           ALL_QUESTIONS = validatedData;
           saveCache();
         } else {
-          // 通信成功したが有効な問題が0件
           showToast("サーバー上の公開問題が0件です。");
           ALL_QUESTIONS = [];
         }
@@ -411,7 +417,6 @@ async function initApp() {
     }
   }
 
-  // UI更新と待機中報告の処理
   processPendingReports();
   loadingOverlay.classList.add("hidden");
   renderHome();
@@ -695,7 +700,7 @@ function renderCurrentCard() {
 
   const card = document.getElementById("flash-card");
   card.classList.remove("correct-flash", "wrong-flash");
-  card.style.transform = "";
+  card.style.transform = ""; // 動画指摘事項: ズレ防止
   document.getElementById("stamp-o").style.opacity = 0;
   document.getElementById("stamp-x").style.opacity = 0;
   document.getElementById("feedback-box").classList.add("hidden");
@@ -764,6 +769,7 @@ function submitAnswer(userChoice) {
   saveProgress();
 
   const card = document.getElementById("flash-card");
+  card.style.transform = ""; // 動画指摘事項: ズレ防止
   card.classList.add(isCor ? "correct-flash" : "wrong-flash");
   document.getElementById("stamp-o").style.opacity = userChoice ? 1 : 0;
   document.getElementById("stamp-x").style.opacity = !userChoice ? 1 : 0;
