@@ -1,203 +1,102 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>危険物乙4｜〇×フラッシュ</title>
 <style>
-  :root {
-    --bg: #f4f6fb;
-    --surface: #ffffff;
-    --text: #1e293b;
-    --muted: #64748b;
-    --border: #e2e8f0;
-    --primary: #f97316;
-    --accent-red: #ef4444;
-    --accent-green: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-blue: #3b82f6;
-    --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
-  .app-shell {
-    width: 100%;
-    max-width: 480px;
-    background: var(--bg);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  header {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    color: #fff;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  }
-  .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; }
-  .brand-badge { background: var(--primary); color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 999px; font-weight: 800; }
-  .header-actions { display: flex; gap: 8px; }
-  .icon-btn {
-    background: rgba(255,255,255,0.12); border: none; color: #fff; border-radius: 8px;
-    padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s;
-  }
-  .icon-btn:hover { background: rgba(255,255,255,0.22); }
-  main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-  .hidden { display: none !important; }
-
-  /* Loading Overlay */
-  #loading-overlay {
-    position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 50;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-  }
-  .spinner {
-    width: 40px; height: 40px; border: 4px solid var(--border); border-top: 4px solid var(--primary);
-    border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px;
-  }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-  /* Notification Toast */
-  #toast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
-    background: #334155; color: #fff; padding: 10px 20px; border-radius: 8px;
-    font-size: 13px; font-weight: 700; opacity: 0; transition: all 0.3s; z-index: 100;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-  .card-box { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); }
-  .section-title { font-size: 13px; font-weight: 800; color: var(--muted); margin: 0 0 10px 0; display: flex; justify-content: space-between; }
-  
-  .mastery-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; text-align: center; }
-  .stat-pill { background: #f8fafc; border-radius: 10px; padding: 8px 4px; border: 1px solid var(--border); }
-  .stat-num { font-size: 18px; font-weight: 800; }
-  .stat-lbl { font-size: 11px; color: var(--muted); font-weight: 600; line-height: 1.2; }
-  .c-green { color: var(--accent-green); }
-  .c-amber { color: var(--accent-amber); }
-  .c-slate { color: #64748b; }
-  
-  .stacked-bar { height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden; display: flex; }
-  .bar-seg-perfect { background: var(--accent-green); transition: width 0.3s; }
-  .bar-seg-learning { background: var(--accent-amber); transition: width 0.3s; }
-
-  .mode-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-  .mode-btn {
-    background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 12px;
-    text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
-  }
-  .mode-btn:active:not(:disabled) { transform: scale(0.98); }
-  .mode-btn.primary-mode { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: #fff; border: none; }
-  .mode-btn.hell-mode { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; border: none; }
-  .mode-btn:disabled { opacity: 0.6; cursor: not-allowed; background: #f8fafc; }
-  .mode-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
-  .mode-desc { font-size: 11px; opacity: 0.85; line-height: 1.35; }
-  .pill-count { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: rgba(0,0,0,0.08); font-weight: 800; }
-  .primary-mode .pill-count, .hell-mode .pill-count { background: rgba(255,255,255,0.2); }
-
-  /* Quiz */
-  .quiz-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .quit-btn { background: #e2e8f0; border: none; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
-  .progress-wrap { flex: 1; }
-  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 4px; }
-  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--primary); transition: width 0.25s; }
-
-  .card-stage { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; min-height: 290px; user-select: none; touch-action: pan-y; }
-  .flash-card {
-    width: 100%; background: var(--surface); border-radius: 22px; padding: 22px 20px;
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1); border: 2px solid var(--border);
-    position: relative; transition: transform 0.2s ease, border-color 0.15s, background-color 0.15s;
-    cursor: grab; min-height: 260px; display: flex; flex-direction: column; justify-content: space-between;
-  }
-  .flash-card.dragging { transition: none; cursor: grabbing; }
-  .flash-card.correct-flash { border-color: var(--accent-green); background: #ecfdf5; }
-  .flash-card.wrong-flash { border-color: var(--accent-red); background: #fef2f2; }
-
-  /* 不具合報告バッジ */
-  .report-badge {
-    background: #fef2f2; color: #b91c1c; font-size: 10.5px; font-weight: 800;
-    padding: 4px 8px; border-radius: 6px; border: 1px solid #fecaca; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 4px; width: fit-content;
-  }
-  .report-badge.resolved { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
-  .report-badge.ok { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
-
-  .card-badges { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 12px; }
-  .badge-tag { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: #f1f5f9; color: #475569; }
-  .badge-revenge { background: #fee2e2; color: #b91c1c; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
-  
-  .q-statement { font-size: 19px; font-weight: 800; line-height: 1.55; color: #0f172a; margin: auto 0; word-break: break-word; }
-  .swipe-hint { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; font-weight: 700; margin-top: 14px; }
-  
-  .stamp { position: absolute; top: 18px; padding: 4px 14px; border-radius: 10px; font-size: 26px; font-weight: 900; opacity: 0; border: 3px solid; pointer-events: none; }
-  .stamp-o { right: 18px; color: var(--accent-green); border-color: var(--accent-green); background: rgba(255,255,255,0.92); transform: rotate(10deg); }
-  .stamp-x { left: 18px; color: var(--accent-red); border-color: var(--accent-red); background: rgba(255,255,255,0.92); transform: rotate(-10deg); }
-
-  .feedback-box { background: #fff; border-radius: 16px; padding: 14px 16px; border: 1.5px solid var(--border); box-shadow: var(--shadow); animation: popIn 0.16s ease-out; }
-  @keyframes popIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  
-  .fb-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  .fb-verdict { font-size: 16px; font-weight: 900; }
-  .fb-verdict.ok { color: var(--accent-green); }
-  .fb-verdict.ng { color: var(--accent-red); }
-  .fb-exp { font-size: 13.5px; line-height: 1.5; color: #1e293b; font-weight: 600; margin: 0 0 10px 0; }
-  
-  .fb-footer { display: flex; align-items: center; justify-content: space-between; }
-  .report-btn { font-size: 11px; font-weight: 700; color: #64748b; background: #f1f5f9; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-  .report-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .next-btn { background: #0f172a; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 800; cursor: pointer; }
-
-  .ox-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding-bottom: 8px; }
-  .ox-btn {
-    border: none; border-radius: 18px; padding: 16px; font-size: 28px; font-weight: 900;
-    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 6px 14px rgba(0,0,0,0.08); transition: transform 0.08s;
-  }
-  .ox-btn:active { transform: scale(0.95); }
-  .btn-x { background: #fee2e2; color: #dc2626; border: 2px solid #fca5a5; }
-  .btn-o { background: #d1fae5; color: #059669; border: 2px solid #6ee7b7; }
-  .ox-sub { font-size: 11px; font-weight: 800; }
-
-  .result-hero { text-align: center; padding: 18px 12px; }
-  .result-title { font-size: 22px; font-weight: 900; margin: 0 0 6px 0; }
-  .result-score { font-size: 36px; font-weight: 900; color: var(--primary); margin: 4px 0; }
-  .result-sub { font-size: 13px; color: var(--muted); font-weight: 700; }
-  .missed-list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
-  .missed-item { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 10px; font-size: 12px; }
-  .missed-q { font-weight: 800; color: #7f1d1d; margin-bottom: 4px; }
+:root{--bg:#f4f6fb;--surface:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--primary:#f97316;--accent-red:#ef4444;--accent-green:#10b981;--accent-amber:#f59e0b;--shadow:0 10px 25px -5px rgba(15,23,42,0.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;min-height:100dvh;overflow-x:hidden}
+.app-shell{width:100%;max-width:480px;background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;position:relative}
+header{background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px rgba(0,0,0,0.12)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px}
+.brand-badge{background:var(--primary);color:#fff;font-size:11px;padding:2px 7px;border-radius:999px;font-weight:800}
+.icon-btn{background:rgba(255,255,255,0.12);border:none;color:#fff;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
+main{flex:1;padding:16px;display:flex;flex-direction:column;gap:14px}
+.hidden{display:none !important}
+#loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.9);z-index:50;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.spinner{width:40px;height:40px;border:4px solid var(--border);border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#334155;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:all 0.3s;z-index:100}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.card-box{background:var(--surface);border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.section-title{font-size:13px;font-weight:800;color:var(--muted);margin:0 0 10px 0;display:flex;justify-content:space-between}
+.mastery-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;text-align:center}
+.stat-pill{background:#f8fafc;border-radius:10px;padding:8px 4px;border:1px solid var(--border)}
+.stat-num{font-size:18px;font-weight:800}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:600;line-height:1.2}
+.c-green{color:var(--accent-green)} .c-amber{color:var(--accent-amber)} .c-slate{color:#64748b}
+.stacked-bar{height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;display:flex}
+.bar-seg-perfect{background:var(--accent-green);transition:width 0.3s}
+.bar-seg-learning{background:var(--accent-amber);transition:width 0.3s}
+.mode-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.mode-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.mode-btn.primary-mode{background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#fff;border:none}
+.mode-btn.hell-mode{background:linear-gradient(135deg,#1e293b 0%,#334155 100%);color:#fff;border:none}
+.mode-btn:disabled{opacity:0.6;cursor:not-allowed}
+.mode-title{font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.mode-desc{font-size:11px;opacity:0.85;line-height:1.35}
+.pill-count{font-size:11px;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,0.08);font-weight:800}
+.primary-mode .pill-count,.hell-mode .pill-count{background:rgba(255,255,255,0.2)}
+.quiz-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.quit-btn{background:#e2e8f0;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.progress-wrap{flex:1}
+.progress-meta{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.progress-bar{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:var(--primary);transition:width 0.25s}
+.card-stage{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;min-height:290px;user-select:none;touch-action:pan-y}
+.flash-card{width:100%;background:var(--surface);border-radius:22px;padding:22px 20px;box-shadow:var(--shadow);border:2px solid var(--border);position:relative;transition:transform 0.2s ease,border-color 0.15s,background-color 0.15s;cursor:grab;min-height:260px;display:flex;flex-direction:column;justify-content:space-between}
+.flash-card.dragging{transition:none;cursor:grabbing}
+.flash-card.correct-flash{border-color:var(--accent-green);background:#ecfdf5}
+.flash-card.wrong-flash{border-color:var(--accent-red);background:#fef2f2}
+.report-badge{background:#fef2f2;color:#b91c1c;font-size:10.5px;font-weight:800;padding:4px 8px;border-radius:6px;border:1px solid #fecaca;margin-bottom:10px;display:flex;align-items:center;gap:4px;width:fit-content}
+.report-badge.resolved{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.report-badge.ok{background:#f8fafc;color:#64748b;border-color:#e2e8f0}
+.card-badges{display:flex;justify-content:space-between;gap:6px;margin-bottom:12px}
+.badge-tag{font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;background:#f1f5f9;color:#475569}
+.badge-revenge{background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px}
+.q-statement{font-size:19px;font-weight:800;line-height:1.55;margin:auto 0;word-break:break-word}
+.swipe-hint{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;font-weight:700;margin-top:14px}
+.stamp{position:absolute;top:18px;padding:4px 14px;border-radius:10px;font-size:26px;font-weight:900;opacity:0;border:3px solid;pointer-events:none}
+.stamp-o{right:18px;color:var(--accent-green);border-color:var(--accent-green);background:rgba(255,255,255,0.92);transform:rotate(10deg)}
+.stamp-x{left:18px;color:var(--accent-red);border-color:var(--accent-red);background:rgba(255,255,255,0.92);transform:rotate(-10deg)}
+.feedback-box{background:#fff;border-radius:16px;padding:14px 16px;border:1.5px solid var(--border);box-shadow:var(--shadow);animation:popIn 0.16s ease-out}
+@keyframes popIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fb-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.fb-verdict{font-size:16px;font-weight:900}
+.fb-verdict.ok{color:var(--accent-green)} .fb-verdict.ng{color:var(--accent-red)}
+.fb-exp{font-size:13.5px;line-height:1.5;font-weight:600;margin:0 0 10px 0}
+.fb-footer{display:flex;justify-content:space-between}
+.report-link{font-size:11px;color:var(--muted);background:none;border:none;text-decoration:underline;cursor:pointer;padding:0}
+.report-btn{font-size:11px;font-weight:700;color:#64748b;background:#f1f5f9;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.next-btn{background:#0f172a;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer}
+.ox-controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-bottom:8px}
+.ox-btn{border:none;border-radius:18px;padding:16px;font-size:28px;font-weight:900;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 6px 14px rgba(0,0,0,0.08);transition:transform 0.08s}
+.ox-btn:active{transform:scale(0.95)}
+.btn-x{background:#fee2e2;color:#dc2626;border:2px solid #fca5a5}
+.btn-o{background:#d1fae5;color:#059669;border:2px solid #6ee7b7}
+.ox-sub{font-size:11px;font-weight:800}
+.result-hero{text-align:center;padding:18px 12px}
+.result-title{font-size:22px;font-weight:900;margin:0 0 6px 0}
+.result-score{font-size:36px;font-weight:900;color:var(--primary);margin:4px 0}
+.result-sub{font-size:13px;color:var(--muted);font-weight:700}
+.missed-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto}
+.missed-item{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px;font-size:12px}
+.missed-q{font-weight:800;color:#7f1d1d;margin-bottom:4px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:50;display:flex;justify-content:center;align-items:flex-end}
+.modal-sheet{width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;padding:18px;max-height:85dvh;display:flex;flex-direction:column;gap:12px}
+.search-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px}
+.browser-list{overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.browser-item{border:1px solid var(--border);border-radius:10px;padding:10px;font-size:12.5px}
+.browser-meta{display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:4px}
 </style>
 </head>
 <body>
 <div class="app-shell">
-  <!-- ローディング・トースト -->
-  <div id="loading-overlay">
-    <div class="spinner"></div>
-    <div style="font-size:13px; font-weight:700; color:var(--muted);">最新の問題データを同期中...</div>
-  </div>
+  <div id="loading-overlay"><div class="spinner"></div><div style="font-size:13px;font-weight:700;color:var(--muted);">最新データを同期中...</div></div>
   <div id="toast"></div>
-
   <header>
     <div class="brand">🔥 乙4 〇×フラッシュ <span class="brand-badge" id="total-badge">-問</span></div>
-    <div class="header-actions">
-      <button class="icon-btn" id="btn-browse" title="一覧検索">一覧検索</button>
-      <button class="icon-btn" id="btn-sound" title="効果音切替">🔊 音ON</button>
-    </div>
+    <div class="header-actions"><button class="icon-btn" id="btn-browse">一覧検索</button><button class="icon-btn" id="btn-sound">🔊 音ON</button></div>
   </header>
-
   <main id="view-home" class="hidden">
     <div class="card-box">
       <div class="section-title"><span>全体の習熟度</span><span id="overall-pct">0% 完了</span></div>
@@ -206,12 +105,8 @@
         <div class="stat-pill"><div class="stat-num c-amber" id="stat-learning">0</div><div class="stat-lbl">うろ覚え<br>&nbsp;</div></div>
         <div class="stat-pill"><div class="stat-num c-slate" id="stat-unseen">0</div><div class="stat-lbl">未学習<br>&nbsp;</div></div>
       </div>
-      <div class="stacked-bar">
-        <div class="bar-seg-perfect" id="bar-perfect" style="width: 0%"></div>
-        <div class="bar-seg-learning" id="bar-learning" style="width: 0%"></div>
-      </div>
+      <div class="stacked-bar"><div class="bar-seg-perfect" id="bar-perfect" style="width:0%"></div><div class="bar-seg-learning" id="bar-learning" style="width:0%"></div></div>
     </div>
-
     <div class="mode-grid">
       <button class="mode-btn primary-mode" id="start-quick10">
         <div class="mode-title"><span>⚡ サクッと10問</span><span class="pill-count">10問で終了</span></div>
@@ -226,575 +121,253 @@
         <div class="mode-desc">完璧ではない（未学習・うろ覚え）問題だけを集中特訓</div>
       </button>
     </div>
+    <div style="text-align:center;padding:4px 0 16px;"><button class="report-link" id="btn-reset">学習履歴をリセットする</button></div>
   </main>
-
   <main id="view-quiz" class="hidden">
     <div class="quiz-top">
       <button class="quit-btn" id="btn-quit">← 戻る</button>
       <div class="progress-wrap">
-        <div class="progress-meta">
-          <span id="quiz-mode-label">サクッと10問</span>
-          <span id="quiz-progress-text">残り 10 枚</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="quiz-progress-fill" style="width: 0%"></div></div>
+        <div class="progress-meta"><span id="quiz-mode-label">サクッと10問</span><span id="quiz-progress-text">残り 10 枚</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="quiz-progress-fill" style="width:0%"></div></div>
       </div>
     </div>
-
     <div class="card-stage" id="card-stage">
       <div class="flash-card" id="flash-card">
-        <div class="stamp stamp-x" id="stamp-x">× 誤り</div>
-        <div class="stamp stamp-o" id="stamp-o">〇 正しい</div>
-        
-        <!-- 不具合バッジ表示領域 -->
+        <div class="stamp stamp-x" id="stamp-x">× 誤り</div><div class="stamp stamp-o" id="stamp-o">〇 正しい</div>
         <div id="report-badge-container"></div>
-        
-        <div class="card-badges">
-          <span class="badge-tag" id="card-cat-tag">#001 性質・消火</span>
-          <span class="badge-revenge hidden" id="card-revenge-tag">🔥 リベンジ</span>
-        </div>
+        <div class="card-badges"><span class="badge-tag" id="card-cat-tag">#001 性質・消火</span><span class="badge-revenge hidden" id="card-revenge-tag">🔥 リベンジ</span></div>
         <div class="q-statement" id="q-statement">読み込み中...</div>
         <div class="swipe-hint"><span>← 左スワイプで「×」</span><span>右スワイプで「〇」 →</span></div>
       </div>
     </div>
-
     <div class="feedback-box hidden" id="feedback-box">
-      <div class="fb-header">
-        <span class="fb-verdict" id="fb-verdict">〇 正解！</span>
-        <span style="font-size:11px; color:var(--muted); font-weight:700;" id="fb-streak">連続正解: 1回</span>
-      </div>
+      <div class="fb-header"><span class="fb-verdict" id="fb-verdict">〇 正解！</span><span style="font-size:11px;color:var(--muted);font-weight:700;" id="fb-streak">連続正解: 1回</span></div>
       <p class="fb-exp" id="fb-exp">解説</p>
-      <div class="fb-footer">
-        <button class="report-btn" id="btn-report-q">⚑ 問題を報告</button>
-        <button class="next-btn" id="btn-next">次へ (Space) →</button>
-      </div>
+      <div class="fb-footer"><button class="report-btn" id="btn-report-q">⚑ 問題を報告</button><button class="next-btn" id="btn-next">次へ (Space) →</button></div>
     </div>
-
     <div class="ox-controls" id="ox-controls">
       <button class="ox-btn btn-x" id="btn-ans-x"><span>×</span><span class="ox-sub">誤り (←)</span></button>
       <button class="ox-btn btn-o" id="btn-ans-o"><span>〇</span><span class="ox-sub">正しい (→)</span></button>
     </div>
   </main>
-
   <main id="view-result" class="hidden">
     <div class="card-box result-hero">
-      <div class="result-sub" id="res-mode-name">セット完了！</div>
-      <h2 class="result-title" id="res-headline">お疲れさまでした！</h2>
-      <div class="result-score" id="res-score">80%</div>
-      <div class="result-sub" id="res-detail">一発正解: 8 / 10問（タイム: 32秒）</div>
+      <div class="result-sub" id="res-mode-name">セット完了！</div><h2 class="result-title" id="res-headline">お疲れさまでした！</h2>
+      <div class="result-score" id="res-score">80%</div><div class="result-sub" id="res-detail">一発正解: 8 / 10問（タイム: 32秒）</div>
     </div>
     <div class="card-box" id="res-missed-box">
-      <div class="section-title"><span>今回間違えた問題</span><span id="res-missed-count">0問</span></div>
-      <div class="missed-list" id="res-missed-list"></div>
+      <div class="section-title"><span>今回間違えた問題</span><span id="res-missed-count">0問</span></div><div class="missed-list" id="res-missed-list"></div>
     </div>
-    <button class="mode-btn primary-mode" id="btn-retry-missed" style="text-align:center; align-items:center;">
-      <div class="mode-title"><span>🔥 間違えた問題だけ今すぐ解き直す</span></div>
-    </button>
-    <button class="mode-btn" id="btn-back-home" style="text-align:center; align-items:center;">
-      <div class="mode-title"><span>🏠 ホーム画面へ戻る</span></div>
-    </button>
+    <button class="mode-btn primary-mode" id="btn-retry-missed" style="text-align:center;align-items:center;"><div class="mode-title"><span>🔥 間違えた問題だけ今すぐ解き直す</span></div></button>
+    <button class="mode-btn" id="btn-back-home" style="text-align:center;align-items:center;"><div class="mode-title"><span>🏠 ホーム画面へ戻る</span></div></button>
   </main>
+</div>
+<div class="modal-backdrop hidden" id="modal-browser">
+  <div class="modal-sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center;"><strong style="font-size:15px;" id="browser-title">📚 全問題・解説一覧</strong><button class="quit-btn" id="btn-close-browser">閉じる</button></div>
+    <input type="text" class="search-input" id="browser-search" placeholder="キーワード検索（例：ガソリン、比重...）">
+    <div class="browser-list" id="browser-list"></div>
+  </div>
 </div>
 
 <script>
-// ==========================================
-// 1. 設定・データ・キャッシュ管理
-// ==========================================
-const API_URL = "https://script.google.com/macros/s/AKfycbyc93oHwXp4wZntJ_K6mZl4mZ-8J-jB20Gv3c1d9zK5pZzZ0kUqjP-8J0fN3/exec"; // ←ダミーではありません。エラーが出ないURLに書き換え済。
+const API_URL = "https://script.google.com/macros/s/AKfycbyc93oHwXp4wZntJ_K6mZl4mZ-8J-jB20Gv3c1d9zK5pZzZ0kUqjP-8J0fN3/exec"; 
 const STORAGE_PROGRESS = "otsu4_progress_v7";
 const STORAGE_CACHE = "otsu4_q_cache";
 const STORAGE_PENDING_REPORTS = "otsu4_pending_reports";
 
-let ALL_QUESTIONS = [];
 let progress = {};
 
-// デフォルトデータ（通信失敗時のフォールバック用：既存の183問抜粋）
-const DEFAULT_DATA = [{"id":"p_001","num":1,"category":"special_pet1","subject":"property","statement":"トルエンは引火点が14℃の第2石油類である。","answer":false,"explanation":"誤り（×）。正しくは「引火点は4℃の第1石油類である。」です。","report_count":0,"status":""},{"id":"p_002","num":2,"category":"special_pet1","subject":"property","statement":"アセトンの引火点は-20℃、メチルエチルケトンは-9℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_003","num":3,"category":"special_pet1","subject":"property","statement":"ベンゼン、トルエンの発火点、比重、燃焼範囲は大きく異なる。","answer":false,"explanation":"誤り（×）。正しくは「ほぼ同じである。」です。","report_count":0,"status":""},{"id":"p_004","num":4,"category":"alcohol_pet2","subject":"property","statement":"アルコール類はメチルアルコール、エチルアルコール、イソプロピルアルコールなどがある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_005","num":5,"category":"general","subject":"property","statement":"第4類危険物の中で発火点が100℃以下のものは存在しない。","answer":false,"explanation":"誤り（×）。正しくは「発火点が100℃以下のものには二硫化炭素がある。」です。","report_count":0,"status":""},{"id":"p_006","num":6,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油はガソリンと混合すると引火しにくくなる。","answer":false,"explanation":"誤り（×）。正しくは「引火しやすくなる。」です。","report_count":0,"status":""},{"id":"p_007","num":7,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルと二硫化炭素は非水溶性の特殊引火物である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_008","num":8,"category":"alcohol_pet2","subject":"property","statement":"メチルアルコール、エチルアルコール、イソプロピルアルコールは水には溶けず有機溶剤のみに溶ける。","answer":false,"explanation":"誤り（×）。正しくは「水にも有機溶剤にも溶ける（水溶性である）。」です。","report_count":0,"status":""},{"id":"p_009","num":9,"category":"special_pet1","subject":"property","statement":"ガソリン、ベンゼン、トルエン、メチルエチルケトンは水溶性である。","answer":false,"explanation":"誤り（×）。正しくは「すべて非水溶性である。」です。","report_count":0,"status":""},{"id":"p_010","num":10,"category":"special_pet1","subject":"property","statement":"ガソリンは無臭である。","answer":false,"explanation":"誤り（×）。正しくは「臭気がある。」です。","report_count":0,"status":""},{"id":"p_011","num":11,"category":"special_pet1","subject":"property","statement":"二硫化炭素は燃焼範囲も1~50vol%と広い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_012","num":12,"category":"alcohol_pet2","subject":"property","statement":"アルコール類の定義は引火点ではなく、化学構造で分類されている。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_013","num":13,"category":"special_pet1","subject":"property","statement":"二硫化炭素は沸点が46℃と低い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_014","num":14,"category":"general","subject":"property","statement":"引火性液体は容器を開放して貯蔵する。","answer":false,"explanation":"誤り（×）。正しくは「密閉して保存する。」です。","report_count":0,"status":""},{"id":"p_015","num":15,"category":"special_pet1","subject":"property","statement":"ガソリンの比重は1.2である。","answer":false,"explanation":"誤り（×）。正しくは「約0.7である。」です。","report_count":0,"status":""},{"id":"p_016","num":16,"category":"special_pet1","subject":"property","statement":"第一石油類の代表例として、ガソリン、ベンゼン、トルエン、メチルエチルケトン、アセトンがある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_017","num":17,"category":"special_pet1","subject":"property","statement":"非水溶性の第2石油類はメチルアルコール、エチルアルコール、アセトンなどがある。","answer":false,"explanation":"誤り（×）。正しくは「灯油、軽油、キシレンなどがある。」です。","report_count":0,"status":""},{"id":"p_018","num":18,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は霧状にしても引火しにくい。","answer":false,"explanation":"誤り（×）。正しくは「霧状にすると引火しやすい。」です。","report_count":0,"status":""},{"id":"p_019","num":19,"category":"general","subject":"property","statement":"引火性液体は蒸気比重が1より小さいものが多い。","answer":false,"explanation":"誤り（×）。正しくは「1より大きいものが多い。」です。","report_count":0,"status":""},{"id":"p_020","num":20,"category":"special_pet1","subject":"property","statement":"ベンゼン、トルエンは両者とも芳香臭がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_021","num":21,"category":"pet3_4_oil","subject":"property","statement":"アニリンは無色から淡黄色の液体で特異臭がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_022","num":22,"category":"general","subject":"property","statement":"引火性液体は火災予防のため火気、加熱を避ける必要がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_023","num":23,"category":"special_pet1","subject":"property","statement":"ガソリンは沸点が38~220℃の第1石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_024","num":24,"category":"alcohol_pet2","subject":"property","statement":"アクリル酸は安定で重合の危険性がない。","answer":false,"explanation":"誤り（×）。正しくは「重合の危険性がある。」です。","report_count":0,"status":""},{"id":"p_025","num":25,"category":"alcohol_pet2","subject":"property","statement":"灯油はストーブの燃料などで使用される。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_026","num":26,"category":"alcohol_pet2","subject":"property","statement":"メチルアルコール、エチルアルコール、イソプロピルアルコールは温度が高くなると引火の危険が高い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_027","num":27,"category":"pet3_4_oil","subject":"property","statement":"動植物油類の定義は、動物の脂肉、植物の種子、果肉から抽出したもので、1気圧において引火点が250℃未満の物質である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_028","num":28,"category":"special_pet1","subject":"property","statement":"メチルエチルケトンはアセトンよりも引火点、沸点ともに低い。","answer":false,"explanation":"誤り（×）。正しくは「引火点、沸点ともに高い。」です。","report_count":0,"status":""},{"id":"p_029","num":29,"category":"pet3_4_oil","subject":"property","statement":"ヨウ素価が高い物質は自然発火しにくい。","answer":false,"explanation":"誤り（×）。正しくは「自然発火しやすい。」です。","report_count":0,"status":""},{"id":"p_030","num":30,"category":"alcohol_pet2","subject":"property","statement":"灯油の沸点は145~270℃、軽油の沸点は170~370℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_031","num":31,"category":"alcohol_pet2","subject":"property","statement":"水溶性の危険物に対しては、耐アルコール泡消火剤を使用する。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_032","num":32,"category":"alcohol_pet2","subject":"property","statement":"アクリル酸には重合禁止剤を添加する。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_033","num":33,"category":"general","subject":"property","statement":"自然発火性とは、窒素で酸化された際に発生した熱を蓄積し、発火点に達する性質である。","answer":false,"explanation":"誤り（×）。正しくは「空気で酸化された際に発生した熱を蓄積し、発火点に達する。」です。","report_count":0,"status":""},{"id":"p_034","num":34,"category":"special_pet1","subject":"property","statement":"酸化プロピレンは引火点が10℃、沸点は70℃である。","answer":false,"explanation":"誤り（×）。正しくは「引火点が-37℃、沸点が35℃である。」です。","report_count":0,"status":""},{"id":"p_035","num":35,"category":"alcohol_pet2","subject":"property","statement":"アクリル酸は水には溶けず有機溶剤のみに溶ける。","answer":false,"explanation":"誤り（×）。正しくは「水にも有機溶剤にも溶ける。」です。","report_count":0,"status":""},{"id":"p_036","num":36,"category":"special_pet1","subject":"property","statement":"ベンゼンの引火点は-11℃、トルエンが4℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_037","num":37,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドの沸点は50℃である。","answer":false,"explanation":"誤り（×）。正しくは「21℃である。」です。","report_count":0,"status":""},{"id":"p_038","num":38,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルは水によく溶解し、有機溶剤にはあまり溶けない。","answer":false,"explanation":"誤り（×）。正しくは「水には不溶で、有機溶剤に溶ける。」です。","report_count":0,"status":""},{"id":"p_039","num":39,"category":"special_pet1","subject":"property","statement":"ベンゼンとトルエンは両方ともベンゼン環を持たない。","answer":false,"explanation":"誤り（×）。正しくは「持つ。」です。","report_count":0,"status":""},{"id":"p_040","num":40,"category":"special_pet1","subject":"property","statement":"クロロベンゼンは水溶性で、有機溶剤には溶けない。","answer":false,"explanation":"誤り（×）。正しくは「水には不溶で、有機溶剤に溶ける。」です。","report_count":0,"status":""},{"id":"p_041","num":41,"category":"general","subject":"property","statement":"引火性液体は比重が1より大きく、水に沈むものが多い。","answer":false,"explanation":"誤り（×）。正しくは「1より小さく、水に浮くものが多い。」です。","report_count":0,"status":""},{"id":"p_042","num":42,"category":"pet3_4_oil","subject":"property","statement":"重油は燃焼温度が低く、燃え出しても液温が低いため消火が容易である。","answer":false,"explanation":"誤り（×）。正しくは「燃え出すと液温が高く消火が困難。」です。","report_count":0,"status":""},{"id":"p_043","num":43,"category":"pet3_4_oil","subject":"property","statement":"乾性油と呼ばれているものは自然発火しやすい。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_044","num":44,"category":"special_pet1","subject":"property","statement":"アセトン、メチルエチルケトンは両方とも黄色の液体で無臭である。","answer":false,"explanation":"誤り（×）。正しくは「無色で臭気がある。」です。","report_count":0,"status":""},{"id":"p_045","num":45,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルの燃焼範囲は2~36vol%と広い。","answer":false,"explanation":"誤り（×）。正しくは「1.9~48vol%である。」です。","report_count":0,"status":""},{"id":"p_046","num":46,"category":"general","subject":"property","statement":"比重が1より小さい危険物は水（棒状）による消火はしない。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_047","num":47,"category":"special_pet1","subject":"property","statement":"クロロベンゼンは、無色の液体で特有の臭気を持っている。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_048","num":48,"category":"pet3_4_oil","subject":"property","statement":"重油は霧状では引火点以下でも引火することがある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_049","num":49,"category":"special_pet1","subject":"property","statement":"メチルエチルケトンは引火点がー9℃の第1石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_050","num":50,"category":"general","subject":"property","statement":"第4類危険物は不燃性液体である。","answer":false,"explanation":"誤り（×）。正しくは「引火性液体である。」です。","report_count":0,"status":""},{"id":"p_051","num":51,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドと酸化プロピレンは水溶性の特殊引火物である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_052","num":52,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルは発火点が220℃である。","answer":false,"explanation":"誤り（×）。正しくは「160℃である。」です。","report_count":0,"status":""},{"id":"p_053","num":53,"category":"special_pet1","subject":"property","statement":"酸化プロピレンの燃焼範囲は2~39vol%である。","answer":false,"explanation":"誤り（×）。正しくは「2.1~38.5vol%である。」です。","report_count":0,"status":""},{"id":"p_054","num":54,"category":"pet3_4_oil","subject":"property","statement":"動植物油類は水溶性で低粘度の液体である。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性で高粘度の液体である。」です。","report_count":0,"status":""},{"id":"p_055","num":55,"category":"general","subject":"property","statement":"消火剤には霧状の強化液、泡、二酸化炭素、ハロゲン化物などを使用する。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_056","num":56,"category":"pet3_4_oil","subject":"property","statement":"重油は無色透明な液体で無臭である。","answer":false,"explanation":"誤り（×）。正しくは「褐色から暗褐色液体で特有の臭気がある。」です。","report_count":0,"status":""},{"id":"p_057","num":57,"category":"pet3_4_oil","subject":"property","statement":"第4石油類には主に、ガソリンとベンゼンがある。","answer":false,"explanation":"誤り（×）。正しくは「潤滑油と可塑剤がある。」です。","report_count":0,"status":""},{"id":"p_058","num":58,"category":"pet3_4_oil","subject":"property","statement":"可塑剤とはプラスチックを柔らかくするための物質である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_059","num":59,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は引火点、発火点、比重、燃焼範囲はほぼ同じ。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_060","num":60,"category":"special_pet1","subject":"property","statement":"二硫化炭素は第1石油類に分類される。","answer":false,"explanation":"誤り（×）。正しくは「特殊引火物に分類される。」です。","report_count":0,"status":""},{"id":"p_061","num":61,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は無臭である。","answer":false,"explanation":"誤り（×）。正しくは「石油臭がある。」です。","report_count":0,"status":""},{"id":"p_062","num":62,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は引火点以上で、ガソリンと同じくらい引火の危険性がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_063","num":63,"category":"special_pet1","subject":"property","statement":"キシレンは引火点が5℃の第1石油類である。","answer":false,"explanation":"誤り（×）。正しくは「引火点は異性体により異なるが約25～32℃であり、第2石油類である。」です。","report_count":0,"status":""},{"id":"p_064","num":64,"category":"alcohol_pet2","subject":"property","statement":"アルコール類の中で、引火点、沸点ともにエチルアルコールが最も低い。","answer":false,"explanation":"誤り（×）。正しくは「メチルアルコールが最も低い。」です。","report_count":0,"status":""},{"id":"p_065","num":65,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドの引火点は-39℃と低い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_066","num":66,"category":"pet3_4_oil","subject":"property","statement":"アニリンは酸性で、塩基と反応する。","answer":false,"explanation":"誤り（×）。正しくは「塩基性で、酸と反応する。」です。","report_count":0,"status":""},{"id":"p_067","num":67,"category":"special_pet1","subject":"property","statement":"メタノールの燃焼範囲はガソリンより広い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_068","num":68,"category":"special_pet1","subject":"property","statement":"ベンゼンは毒性が高く、トルエンはベンゼンよりやや毒性が低い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_069","num":69,"category":"special_pet1","subject":"property","statement":"ガソリンの沸点は40~220℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_070","num":70,"category":"special_pet1","subject":"property","statement":"アセトンは引火点が-20℃の第1石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_071","num":71,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドは無色の液体で刺激臭がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_072","num":72,"category":"pet3_4_oil","subject":"property","statement":"潤滑油はギヤー油、シリンダー油、合成潤滑油などがある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_073","num":73,"category":"pet3_4_oil","subject":"property","statement":"クレオソート油はコールタールを蒸留して得られる液体である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_074","num":74,"category":"general","subject":"property","statement":"引火性液体は火災予防のため静電気を帯電させる必要がある。","answer":false,"explanation":"誤り（×）。正しくは「除去する必要がある。」です。","report_count":0,"status":""},{"id":"p_075","num":75,"category":"special_pet1","subject":"property","statement":"クロロベンゼンは比重が1より大きく、水に沈む。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_076","num":76,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドの蒸気には毒性がない。","answer":false,"explanation":"誤り（×）。正しくは「毒性がある。」です。","report_count":0,"status":""},{"id":"p_077","num":77,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドは特殊引火物に分類される。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_078","num":78,"category":"pet3_4_oil","subject":"property","statement":"重油は比重が1より大きい。","answer":false,"explanation":"誤り（×）。正しくは「1より小さい。」です。","report_count":0,"status":""},{"id":"p_079","num":79,"category":"general","subject":"property","statement":"第２石油類の定義は、1気圧において引火点が21℃以上70℃未満。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_080","num":80,"category":"special_pet1","subject":"property","statement":"二硫化炭素は燃焼すると有毒な硫酸が発生する。","answer":false,"explanation":"誤り（×）。正しくは「二酸化硫黄などが発生する。」です。","report_count":0,"status":""},{"id":"p_081","num":81,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルの蒸気には麻酔性がない。","answer":false,"explanation":"誤り（×）。正しくは「ある。」です。","report_count":0,"status":""},{"id":"p_082","num":82,"category":"alcohol_pet2","subject":"property","statement":"酢酸は非水溶性の第3石油類である。","answer":false,"explanation":"誤り（×）。正しくは「引火点は約39℃であり、水溶性の第2石油類である。」です。","report_count":0,"status":""},{"id":"p_083","num":83,"category":"pet3_4_oil","subject":"property","statement":"クレオソート油は燃焼温度が低く消火しやすい。","answer":false,"explanation":"誤り（×）。正しくは「燃焼温度が高く消火しにくい。」です。","report_count":0,"status":""},{"id":"p_084","num":84,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油はいずれも水溶性である。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性である。」です。","report_count":0,"status":""},{"id":"p_085","num":85,"category":"special_pet1","subject":"property","statement":"ガソリンの発火点は100℃である。","answer":false,"explanation":"誤り（×）。正しくは「約300℃である。」です。","report_count":0,"status":""},{"id":"p_086","num":86,"category":"alcohol_pet2","subject":"property","statement":"キシレンは無色透明の液体である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_087","num":87,"category":"pet3_4_oil","subject":"property","statement":"可塑剤とは金属を硬くするための物質である。","answer":false,"explanation":"誤り（×）。正しくは「プラスチックを柔らかくするための物質である。」です。","report_count":0,"status":""},{"id":"p_088","num":88,"category":"alcohol_pet2","subject":"property","statement":"重油は原油を蒸留した軽油のみで構成されている。","answer":false,"explanation":"誤り（×）。正しくは「残油や、それに軽油などを混ぜ合わせたものである。」です。","report_count":0,"status":""},{"id":"p_089","num":89,"category":"special_pet1","subject":"property","statement":"クロロベンゼンの主な用途は、除草剤、色素、ゴムなどの原料である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_090","num":90,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドは水に溶解し、有機溶剤にも溶解する。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_091","num":91,"category":"pet3_4_oil","subject":"property","statement":"動植物油類は比重が1以上の液体が多い。","answer":false,"explanation":"誤り（×）。正しくは「比重が1以下の液体が多い。」です。","report_count":0,"status":""},{"id":"p_092","num":92,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドの発火点は175℃と低い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_093","num":93,"category":"special_pet1","subject":"property","statement":"二硫化炭素は比重が0.8と水より軽い。","answer":false,"explanation":"誤り（×）。正しくは「比重が1.3と、水より重い。」です。","report_count":0,"status":""},{"id":"p_094","num":94,"category":"alcohol_pet2","subject":"property","statement":"キシレンは無臭である。","answer":false,"explanation":"誤り（×）。正しくは「臭気がある。」です。","report_count":0,"status":""},{"id":"p_095","num":95,"category":"special_pet1","subject":"property","statement":"ガソリンは本来黄色だが、灯油や軽油と間違わないよう脱色されている。","answer":false,"explanation":"誤り（×）。正しくは「無色だが、灯油や軽油と間違わないよう着色されている。」です。","report_count":0,"status":""},{"id":"p_096","num":96,"category":"pet3_4_oil","subject":"property","statement":"重油、クレオソート油、アニリンは水溶性、グリセリンは非水溶性である。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性、グリセリンは水溶性である。」です。","report_count":0,"status":""},{"id":"p_097","num":97,"category":"special_pet1","subject":"property","statement":"重油は引火点が30~60℃の第1石油類である。","answer":false,"explanation":"誤り（×）。正しくは「60~150℃の第3石油類である。」です。","report_count":0,"status":""},{"id":"p_098","num":98,"category":"pet3_4_oil","subject":"property","statement":"動植物油類は自然発火性をもたない。","answer":false,"explanation":"誤り（×）。正しくは「自然発火性がある。」です。","report_count":0,"status":""},{"id":"p_099","num":99,"category":"pet3_4_oil","subject":"property","statement":"クレオソート油は黄色、暗緑色で特有の臭気がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_100","num":100,"category":"special_pet1","subject":"property","statement":"クロロベンゼンは引火点が28℃の第2石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_101","num":101,"category":"general","subject":"property","statement":"第3石油類の定義は1気圧において引火点が50℃以上150℃未満。","answer":false,"explanation":"誤り（×）。正しくは「70℃以上200℃未満。」です。","report_count":0,"status":""},{"id":"p_102","num":102,"category":"alcohol_pet2","subject":"property","statement":"灯油は引火点が40℃以上の第2石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_103","num":103,"category":"general","subject":"property","statement":"第3石油類の代表例として、ガソリン、ベンゼン、トルエンがある。","answer":false,"explanation":"誤り（×）。正しくは「ガソリン等は第1石油類である。」です。","report_count":0,"status":""},{"id":"p_104","num":104,"category":"general","subject":"property","statement":"引火性液体の消火方法の一つに窒息消火がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_105","num":105,"category":"special_pet1","subject":"property","statement":"酸化プロピレンは特殊引火物に分類される。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_106","num":106,"category":"special_pet1","subject":"property","statement":"ガソリンの燃焼範囲は1.4~7.6vol%である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_107","num":107,"category":"special_pet1","subject":"property","statement":"二硫化炭素の貯蔵は有機溶剤中で行う。","answer":false,"explanation":"誤り（×）。正しくは「水中で行う。」です。","report_count":0,"status":""},{"id":"p_108","num":108,"category":"pet3_4_oil","subject":"property","statement":"第3石油類の中で比重が1より小さいのは重油だけである。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_109","num":109,"category":"special_pet1","subject":"property","statement":"ガソリンは原油を分留したものである。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_110","num":110,"category":"alcohol_pet2","subject":"property","statement":"メチルアルコールは毒性があり、誤飲により失明の危険がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_111","num":111,"category":"general","subject":"property","statement":"分留は混合物を沸点の差を利用して蒸留し、目的物を分離することである。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_112","num":112,"category":"alcohol_pet2","subject":"property","statement":"キシレンはオルト、メタ、パラの3つの異性体がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_113","num":113,"category":"alcohol_pet2","subject":"property","statement":"酢酸は17℃以下で凝固する。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_114","num":114,"category":"alcohol_pet2","subject":"property","statement":"アクリル酸は引火点51℃で第2石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_115","num":115,"category":"special_pet1","subject":"property","statement":"ベンゼンよりもトルエンのほうが引火点、沸点が低い。","answer":false,"explanation":"誤り（×）。正しくは「高い。」です。","report_count":0,"status":""},{"id":"p_116","num":116,"category":"special_pet1","subject":"property","statement":"ガソリンは水に溶ける水溶性である。","answer":false,"explanation":"誤り（×）。正しくは「水に溶けない非水溶性である。」です。","report_count":0,"status":""},{"id":"p_117","num":117,"category":"special_pet1","subject":"property","statement":"二硫化炭素は、無色の液体で無臭であり、毒性は非常に低い。","answer":false,"explanation":"誤り（×）。正しくは「特異な臭気があり毒性が高い。」です。","report_count":0,"status":""},{"id":"p_118","num":118,"category":"alcohol_pet2","subject":"property","statement":"酢酸の水溶液はアルカリ性を示す。","answer":false,"explanation":"誤り（×）。正しくは「酸性。」です。","report_count":0,"status":""},{"id":"p_119","num":119,"category":"special_pet1","subject":"property","statement":"ガソリンの比重は1.1であり水に沈む。","answer":false,"explanation":"誤り（×）。正しくは「1未満であり水に浮く。」です。","report_count":0,"status":""},{"id":"p_120","num":120,"category":"alcohol_pet2","subject":"property","statement":"軽油の色は青色である。","answer":false,"explanation":"誤り（×）。正しくは「淡黄色から淡褐色。」です。","report_count":0,"status":""},{"id":"p_121","num":121,"category":"special_pet1","subject":"property","statement":"アセトンの沸点は57℃、メチルエチルケトンは80℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_122","num":122,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は導体である。","answer":false,"explanation":"誤り（×）。正しくは「不良導体である。」です。","report_count":0,"status":""},{"id":"p_123","num":123,"category":"alcohol_pet2","subject":"property","statement":"アクリル酸は過酸化物質などとの接触を避ける必要がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_124","num":124,"category":"special_pet1","subject":"property","statement":"軽油はガソリンエンジンの燃料などで使用される。","answer":false,"explanation":"誤り（×）。正しくは「ディーゼルエンジン。」です。","report_count":0,"status":""},{"id":"p_125","num":125,"category":"special_pet1","subject":"property","statement":"引火性液体は、第1石油類と第2石油類の2つにのみ分類される。","answer":false,"explanation":"誤り（×）。正しくは「特殊引火物から動植物油類まで7種類に分けられる。」です。","report_count":0,"status":""},{"id":"p_126","num":126,"category":"pet3_4_oil","subject":"property","statement":"グリセリンは引火点、沸点が高く、引火の危険性は低い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_127","num":127,"category":"special_pet1","subject":"property","statement":"特殊引火物は引火点、発火点が特に低く、燃焼範囲も広いので非常に危険性が高い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_128","num":128,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は流動・摩擦により静電気が発生しやすく、静電気火災に注意が必要。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_129","num":129,"category":"pet3_4_oil","subject":"property","statement":"第4石油類は燃焼温度が低く消火が容易である。","answer":false,"explanation":"誤り（×）。正しくは「燃焼温度が高く消火しにくい。」です。","report_count":0,"status":""},{"id":"p_130","num":130,"category":"alcohol_pet2","subject":"property","statement":"酢酸は無色液体で刺激臭がある。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_131","num":131,"category":"pet3_4_oil","subject":"property","statement":"重油は比重によってA重油、B重油、C重油の3種類に分類される。","answer":false,"explanation":"誤り（×）。正しくは「動粘度によって分類される。」です。","report_count":0,"status":""},{"id":"p_132","num":132,"category":"alcohol_pet2","subject":"property","statement":"エチルアルコールは酒類の主成分で、メタノールより毒性が低い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_133","num":133,"category":"special_pet1","subject":"property","statement":"二硫化炭素は発火点が150℃であり、第4類危険物の中で最も高い。","answer":false,"explanation":"誤り（×）。正しくは「90℃であり、最も低い。」です。","report_count":0,"status":""},{"id":"p_134","num":134,"category":"special_pet1","subject":"property","statement":"ベンゼンの沸点は80℃、トルエンが111℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_135","num":135,"category":"pet3_4_oil","subject":"property","statement":"グリセリンは水によく溶ける。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_136","num":136,"category":"special_pet1","subject":"property","statement":"酸化プロピレンは反応性があり重合しやすい。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_137","num":137,"category":"special_pet1","subject":"property","statement":"第4類危険物の中でジエチルエーテルは最も引火点が低く-45℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_138","num":138,"category":"special_pet1","subject":"property","statement":"ガソリンの引火点は-40℃以下である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_139","num":139,"category":"general","subject":"property","statement":"第4石油類の定義は、1気圧において引火点が100℃以下である。","answer":false,"explanation":"誤り（×）。正しくは「引火点が200℃から250℃未満。」です。","report_count":0,"status":""},{"id":"p_140","num":140,"category":"special_pet1","subject":"property","statement":"アセトンは油脂をよく溶かす。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_141","num":141,"category":"special_pet1","subject":"property","statement":"二硫化炭素は引火点が20℃である。","answer":false,"explanation":"誤り（×）。正しくは「-30℃以下である。」です。","report_count":0,"status":""},{"id":"p_142","num":142,"category":"pet3_4_oil","subject":"property","statement":"動植物油類は不飽和脂肪酸を含むものが多い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_143","num":143,"category":"special_pet1","subject":"property","statement":"クロロベンゼンはベンゼンに塩素が含まれる物質である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_144","num":144,"category":"special_pet1","subject":"property","statement":"キシレンはベンゼンにメチル基が3つついた化合物である。","answer":false,"explanation":"誤り（×）。正しくは「メチル基が2つついた化合物である。」です。","report_count":0,"status":""},{"id":"p_145","num":145,"category":"special_pet1","subject":"property","statement":"グリセリンは引火点が50℃の第1石油類である。","answer":false,"explanation":"誤り（×）。正しくは「160℃以上の第3石油類。」です。","report_count":0,"status":""},{"id":"p_146","num":146,"category":"pet3_4_oil","subject":"property","statement":"重油は燃焼により有毒な亜硫酸ガスを発生する。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_147","num":147,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルは無色の液体で甘い刺激臭がある。","answer":false,"explanation":"誤り（×）。正しくは「無色でエーテル臭がある。」です。","report_count":0,"status":""},{"id":"p_148","num":148,"category":"general","subject":"property","statement":"引火性液体は電気の不良導体であり静電気が蓄積しやすい。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_149","num":149,"category":"pet3_4_oil","subject":"property","statement":"クレオソート油は水溶性であり、有機溶剤には溶けない。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性で有機溶剤にとける。」です。","report_count":0,"status":""},{"id":"p_150","num":150,"category":"special_pet1","subject":"property","statement":"酸化プロピレンは有色の液体で無臭である。","answer":false,"explanation":"誤り（×）。正しくは「無色の液体でエーテル臭がある。」です。","report_count":0,"status":""},{"id":"p_151","num":151,"category":"general","subject":"property","statement":"引火性液体は可燃性蒸気を屋内の低所に排出する。","answer":false,"explanation":"誤り（×）。正しくは「可燃性蒸気は低所に滞留しやすいため、低所から吸気し、屋外の高所へ排出する。」です。","report_count":0,"status":""},{"id":"p_152","num":152,"category":"special_pet1","subject":"property","statement":"グリセリンは比重が二硫化炭素と同じ値である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_153","num":153,"category":"alcohol_pet2","subject":"property","statement":"酢酸は食酢に使われる成分で、低温で凝固するため氷酢酸とも呼ばれる。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_154","num":154,"category":"pet3_4_oil","subject":"property","statement":"重油は非水溶性である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_155","num":155,"category":"special_pet1","subject":"property","statement":"ベンゼン、トルエンは両者とも水溶性である。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性である。」です。","report_count":0,"status":""},{"id":"p_156","num":156,"category":"special_pet1","subject":"property","statement":"アセトンは水溶性、メチルエチルケトンは非水溶性である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_157","num":157,"category":"alcohol_pet2","subject":"property","statement":"動植物油類の代表例としては、軽油、灯油、クレオソート油がある。","answer":false,"explanation":"誤り（×）。正しくは「亜麻仁油、オリーブ油などがある。」です。","report_count":0,"status":""},{"id":"p_158","num":158,"category":"special_pet1","subject":"property","statement":"特殊引火物の定義は、発火点が200℃以上である。","answer":false,"explanation":"誤り（×）。正しくは「発火点が100℃以下、もしくは引火点が-20℃以下、沸点が40℃以下。」です。","report_count":0,"status":""},{"id":"p_159","num":159,"category":"special_pet1","subject":"property","statement":"酸化プロピレンは水にも有機溶剤にも溶けない。","answer":false,"explanation":"誤り（×）。正しくは「溶ける。」です。","report_count":0,"status":""},{"id":"p_160","num":160,"category":"special_pet1","subject":"property","statement":"アセトンは非水溶性である。","answer":false,"explanation":"誤り（×）。正しくは「水溶性。」です。","report_count":0,"status":""},{"id":"p_161","num":161,"category":"pet3_4_oil","subject":"property","statement":"グリセリンは有色で悪臭があり、低粘度の液体である。","answer":false,"explanation":"誤り（×）。正しくは「無色で無臭、粘調な液体である。」です。","report_count":0,"status":""},{"id":"p_162","num":162,"category":"special_pet1","subject":"property","statement":"ベンゼン、トルエンは両者とも有色の液体である。","answer":false,"explanation":"誤り（×）。正しくは「無色の液体である。」です。","report_count":0,"status":""},{"id":"p_163","num":163,"category":"special_pet1","subject":"property","statement":"第一石油類の定義は、1気圧において引火点が50℃以上である。","answer":false,"explanation":"誤り（×）。正しくは「21℃未満。」です。","report_count":0,"status":""},{"id":"p_164","num":164,"category":"pet3_4_oil","subject":"property","statement":"動植物油類は燃焼温度が低く消火が容易である。","answer":false,"explanation":"誤り（×）。正しくは「燃焼温度が高く消火が困難。」です。","report_count":0,"status":""},{"id":"p_165","num":165,"category":"special_pet1","subject":"property","statement":"アセトアルデヒドの燃焼範囲は1~10vol%である。","answer":false,"explanation":"誤り（×）。正しくは「4~60vol％。」です。","report_count":0,"status":""},{"id":"p_166","num":166,"category":"alcohol_pet2","subject":"property","statement":"アルコール類の定義は1分子中に炭素原子が1から3個までの飽和一価アルコールである。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_167","num":167,"category":"alcohol_pet2","subject":"property","statement":"軽油は引火点が45℃以上の第2石油類である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_168","num":168,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルは第1石油類に分類される。","answer":false,"explanation":"誤り（×）。正しくは「特殊引火物。」です。","report_count":0,"status":""},{"id":"p_169","num":169,"category":"alcohol_pet2","subject":"property","statement":"灯油、軽油は原油とは無関係な人工化合物である。","answer":false,"explanation":"誤り（×）。正しくは「原油を分留したもの。」です。","report_count":0,"status":""},{"id":"p_170","num":170,"category":"pet3_4_oil","subject":"property","statement":"第４石油類は比重が1以下の液体が多い。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_171","num":171,"category":"pet3_4_oil","subject":"property","statement":"クレオソート油は霧状にしても引火性に変化はない。","answer":false,"explanation":"誤り（×）。正しくは「引火しやすくなる。」です。","report_count":0,"status":""},{"id":"p_172","num":172,"category":"special_pet1","subject":"property","statement":"ベンゼンは引火点が10℃の第2石油類である。","answer":false,"explanation":"誤り（×）。正しくは「-11℃の第1石油類である。」です。","report_count":0,"status":""},{"id":"p_173","num":173,"category":"special_pet1","subject":"property","statement":"キシレンは水溶性で、ジエチルエーテルなどの有機溶剤にとけない。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性で、ジエチルエーテルなどの有機溶剤にとける。」です。","report_count":0,"status":""},{"id":"p_174","num":174,"category":"alcohol_pet2","subject":"property","statement":"クレオソート油は引火点が94℃の第2石油類である。","answer":false,"explanation":"誤り（×）。正しくは「75℃の第3石油類である。」です。","report_count":0,"status":""},{"id":"p_175","num":175,"category":"alcohol_pet2","subject":"property","statement":"灯油の色は無色から淡紫黄色である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_176","num":176,"category":"alcohol_pet2","subject":"property","statement":"キシレンの異性体はそれぞれ沸点が異なる。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_177","num":177,"category":"pet3_4_oil","subject":"property","statement":"第4石油類は水溶性で低粘度の液体が多い。","answer":false,"explanation":"誤り（×）。正しくは「非水溶性で粘調な液体が多い。」です。","report_count":0,"status":""},{"id":"p_178","num":178,"category":"pet3_4_oil","subject":"property","statement":"可塑剤は塩酸エステル、フタル酸エステルなどがある。","answer":false,"explanation":"誤り（×）。正しくは「主にリン酸エステルやフタル酸エステルなどがある。」です。","report_count":0,"status":""},{"id":"p_179","num":179,"category":"alcohol_pet2","subject":"property","statement":"灯油と軽油の性質は非常によく似ているが引火点や発火点が異なる。","answer":false,"explanation":"誤り（×）。正しくは「主に沸点が異なる。」です。","report_count":0,"status":""},{"id":"p_180","num":180,"category":"alcohol_pet2","subject":"property","statement":"酢酸は水溶性である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_181","num":181,"category":"pet3_4_oil","subject":"property","statement":"ヨウ素価は自然発火のしやすさを表す指標として用いられる。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_182","num":182,"category":"special_pet1","subject":"property","statement":"ジエチルエーテルは沸点が35℃で非常に揮発しやすい。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""},{"id":"p_183","num":183,"category":"special_pet1","subject":"property","statement":"酸化プロピレンの発火点は449℃である。","answer":true,"explanation":"正しい記述（〇）です。","report_count":0,"status":""}];
+/* ここに【コードその2】のデータを貼り付けてください */
+const ALL_QUESTIONS = DATA_PROPERTIES;
 
-// ==========================================
-// 2. 状態管理・初期化
-// ==========================================
-let progress = {};
-
-function loadLocalData() {
-  try {
-    const p = localStorage.getItem(STORAGE_PROGRESS);
-    if (p) progress = JSON.parse(p);
-  } catch (e) { console.error("Progress parsing failed", e); progress = {}; }
-  
-  try {
-    const c = localStorage.getItem(STORAGE_CACHE);
-    if (c) ALL_QUESTIONS = JSON.parse(c);
-    else ALL_QUESTIONS = DEFAULT_DATA;
-  } catch (e) {
-    console.error("Cache parsing failed", e);
-    ALL_QUESTIONS = DEFAULT_DATA;
-  }
+function loadLocalData(){
+  try{const p=localStorage.getItem(STORAGE_PROGRESS);if(p)progress=JSON.parse(p)}catch(e){progress={}}
+  try{const c=localStorage.getItem(STORAGE_CACHE);if(c)ALL_QUESTIONS=JSON.parse(c)}catch(e){}
 }
+function saveProgress(){try{localStorage.setItem(STORAGE_PROGRESS,JSON.stringify(progress))}catch(e){}}
 
-function saveProgress() {
-  try { localStorage.setItem(STORAGE_PROGRESS, JSON.stringify(progress)); } 
-  catch (e) { console.error("Progress save failed", e); }
-}
-
-async function initApp() {
+async function initApp(){
   loadLocalData();
-  
-  if (API_URL && API_URL.startsWith("http")) {
-    try {
-      const res = await fetch(API_URL, { method: 'GET', redirect: 'follow' });
-      if (!res.ok) throw new Error("Network response was not ok");
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        ALL_QUESTIONS = json.data;
-        try { localStorage.setItem(STORAGE_CACHE, JSON.stringify(ALL_QUESTIONS)); } 
-        catch (e) { console.error("Cache save failed", e); }
+  if(API_URL&&API_URL.startsWith("http")){
+    try{
+      const res=await fetch(API_URL,{method:'GET',redirect:'follow'});
+      if(!res.ok)throw new Error("Network error");
+      const json=await res.json();
+      if(json.success&&Array.isArray(json.data)&&json.data.length>0){
+        ALL_QUESTIONS=json.data;
+        try{localStorage.setItem(STORAGE_CACHE,JSON.stringify(ALL_QUESTIONS))}catch(e){}
       }
-    } catch (err) {
-      console.warn("Failed to fetch latest questions. Using cached/default data.", err);
-      showToast("オフライン：キャッシュデータで起動しました");
-    }
-  } else {
-    console.warn("API_URL is empty. Using default data.");
+    }catch(err){showToast("オフライン：キャッシュデータで起動しました")}
   }
-
   processPendingReports();
   document.getElementById("loading-overlay").classList.add("hidden");
   renderHome();
   document.getElementById("view-home").classList.remove("hidden");
 }
 
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 3000);
-}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000)}
 
-// --- 不具合報告機能 ---
-async function reportIssue(questionId) {
-  if (!API_URL || !API_URL.startsWith("http")) {
-    showToast("報告APIが設定されていません");
-    return;
-  }
-  
-  // 報告済みチェック
-  let reported;
-  try { reported = JSON.parse(localStorage.getItem("otsu4_reported") || "[]"); } 
-  catch(e) { reported = []; }
-  if (reported.includes(questionId)) {
-    showToast("この問題はすでに報告済みです");
-    return;
-  }
-  
-  // 簡易ユニークID（UUID代替）
-  const reportId = "req_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-  const payload = { report_id: reportId, question_id: questionId };
-  
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      redirect: "follow",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if (result.success) {
+async function reportIssue(questionId){
+  if(!API_URL||!API_URL.startsWith("http")){showToast("報告APIが設定されていません");return}
+  let reported;try{reported=JSON.parse(localStorage.getItem("otsu4_reported")||"[]")}catch(e){reported=[]}
+  if(reported.includes(questionId)){showToast("すでに報告済みです");return}
+  const reportId="req_"+Date.now()+"_"+Math.random().toString(36).substr(2,9);
+  const payload={report_id:reportId,question_id:questionId};
+  try{
+    const res=await fetch(API_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain"},body:JSON.stringify(payload)});
+    const result=await res.json();
+    if(result.success){
       showToast("不具合報告を受け付けました");
-      reported.push(questionId);
-      localStorage.setItem("otsu4_reported", JSON.stringify(reported));
-    } else {
-      throw new Error(result.error || "Server error");
-    }
-  } catch (err) {
-    console.warn("Report failed, saving to pending queue", err);
-    savePendingReport(payload);
-    showToast("通信エラー：次回起動時に再送します");
+      reported.push(questionId);localStorage.setItem("otsu4_reported",JSON.stringify(reported));
+    }else throw new Error("Server error");
+  }catch(err){
+    savePendingReport(payload);showToast("通信エラー：次回起動時に再送します");
   }
 }
-
-function savePendingReport(payload) {
-  try {
-    let pending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS) || "[]");
-    pending.push(payload);
-    localStorage.setItem(STORAGE_PENDING_REPORTS, JSON.stringify(pending));
-  } catch(e) {}
+function savePendingReport(payload){try{let pending=JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS)||"[]");pending.push(payload);localStorage.setItem(STORAGE_PENDING_REPORTS,JSON.stringify(pending))}catch(e){}}
+async function processPendingReports(){
+  if(!API_URL||!API_URL.startsWith("http"))return;
+  let pending=[];try{pending=JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS)||"[]")}catch(e){}
+  if(pending.length===0)return;
+  let newPending=[];
+  for(const p of pending){
+    try{
+      const res=await fetch(API_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p)});
+      const result=await res.json();
+      if(!result.success)newPending.push(p);
+    }catch(err){newPending.push(p)}
+  }
+  try{localStorage.setItem(STORAGE_PENDING_REPORTS,JSON.stringify(newPending))}catch(e){}
 }
 
-async function processPendingReports() {
-  if (!API_URL || !API_URL.startsWith("http")) return;
-  let pending = [];
-  try { pending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS) || "[]"); } 
-  catch(e) {}
-  if (pending.length === 0) return;
+let soundEnabled=true,audioCtx=null;
+function initAudio(){if(!audioCtx){try{const A=window.AudioContext||window.webkitAudioContext;if(A)audioCtx=new A()}catch(e){}}}
+function playTone(isCorrect){
+  if(!soundEnabled)return;initAudio();if(!audioCtx)return;
+  try{
+    if(audioCtx.state==="suspended")audioCtx.resume().catch(()=>{});
+    const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.connect(gain);gain.connect(audioCtx.destination);
+    const now=audioCtx.currentTime;
+    if(isCorrect){osc.type="sine";osc.frequency.setValueAtTime(660,now);osc.frequency.setValueAtTime(880,now+0.08);gain.gain.setValueAtTime(0.15,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.25)}
+    else{osc.type="sawtooth";osc.frequency.setValueAtTime(180,now);osc.frequency.linearRampToValueAtTime(130,now+0.22);gain.gain.setValueAtTime(0.14,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.25)}
+    osc.start(now);osc.stop(now+0.25);
+  }catch(e){}
+}
+
+function getStatus(id){if(!progress[id])return"unseen";return progress[id].streak>=3?"perfect":"learning"}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function renderHome(){
+  const total=ALL_QUESTIONS.length;document.getElementById("total-badge").textContent=`全${total}問`;
+  let perfect=0,learning=0,unseen=0;
+  ALL_QUESTIONS.forEach(q=>{const st=getStatus(q.id);if(st==="perfect")perfect++;else if(st==="learning")learning++;else unseen++});
+  const pct=total>0?Math.round((perfect/total)*100):0;
+  document.getElementById("overall-pct").textContent=`${pct}% 完了 (${perfect}/${total})`;
+  document.getElementById("stat-perfect").textContent=perfect;document.getElementById("stat-learning").textContent=learning;document.getElementById("stat-unseen").textContent=unseen;
+  document.getElementById("bar-perfect").style.width=total>0?`${(perfect/total)*100}%`:"0%";
+  document.getElementById("bar-learning").style.width=total>0?`${(learning/total)*100}%`:"0%";
+  const weakList=ALL_QUESTIONS.filter(q=>getStatus(q.id)!=="perfect");
+  document.getElementById("weak-count").textContent=`${weakList.length}問`;
+  document.getElementById("start-weak").disabled=weakList.length===0;
+}
+
+let session=null;
+function showView(name){["home","quiz","result"].forEach(v=>{const el=document.getElementById(`view-${v}`);if(el)el.classList.toggle("hidden",v!==name)})}
+function startQuiz(modeName,questionList,loopUntilMastered){
+  if(!questionList||questionList.length===0)return;
+  session={modeName,loopUntilMastered,initialTotal:new Set(questionList.map(q=>q.id)).size,queue:questionList.map(q=>({...q,isRevenge:false})),completedCount:0,firstTryCorrect:0,seenThisSession:new Set(),missedThisSession:new Map(),startTime:Date.now(),awaitingNext:false,current:null,lastQuestionId:null,autoNextTimer:null};
+  document.getElementById("quiz-mode-label").textContent=modeName;showView("quiz");renderCurrentCard();
+}
+function renderCurrentCard(){
+  if(session.autoNextTimer){clearTimeout(session.autoNextTimer);session.autoNextTimer=null}
+  let nextIdx=(session.queue.length>1&&session.queue[0].id===session.lastQuestionId)?1:0;
+  session.current=session.queue.splice(nextIdx,1)[0];session.lastQuestionId=session.current.id;
+  const card=document.getElementById("flash-card");card.classList.remove("correct-flash","wrong-flash");card.style.transform="";
+  document.getElementById("stamp-o").style.opacity=0;document.getElementById("stamp-x").style.opacity=0;
+  document.getElementById("feedback-box").classList.add("hidden");document.getElementById("ox-controls").classList.remove("hidden");
   
-  let newPending = [];
-  for (const p of pending) {
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST", redirect: "follow",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(p)
-      });
-      const result = await res.json();
-      if (!result.success) newPending.push(p);
-    } catch(err) {
-      newPending.push(p);
-    }
-  }
-  try { localStorage.setItem(STORAGE_PENDING_REPORTS, JSON.stringify(newPending)); } 
-  catch(e) {}
-}
-
-// --- 効果音 ---
-let soundEnabled = true;
-let audioCtx = null;
-function initAudio() {
-  if (!audioCtx) {
-    try { const A = window.AudioContext || window.webkitAudioContext; if (A) audioCtx = new A(); } 
-    catch(e) {}
-  }
-}
-function playTone(isCorrect) {
-  if (!soundEnabled) return;
-  initAudio();
-  if (!audioCtx) return;
-  try {
-    if (audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    const now = audioCtx.currentTime;
-    if (isCorrect) {
-      osc.type = "sine"; osc.frequency.setValueAtTime(660, now); osc.frequency.setValueAtTime(880, now + 0.08);
-      gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    } else {
-      osc.type = "sawtooth"; osc.frequency.setValueAtTime(180, now); osc.frequency.linearRampToValueAtTime(130, now + 0.22);
-      gain.gain.setValueAtTime(0.14, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    }
-    osc.start(now); osc.stop(now + 0.25);
-  } catch(e) {}
-}
-
-// ==========================================
-// 3. コアロジック (習熟判定: 3回連続正解)
-// ==========================================
-function getStatus(id) {
-  if (!progress[id]) return "unseen";
-  return progress[id].streak >= 3 ? "perfect" : "learning";
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// ==========================================
-// 4. UI 描画
-// ==========================================
-function renderHome() {
-  const total = ALL_QUESTIONS.length;
-  document.getElementById("total-badge").textContent = `全${total}問`;
-
-  let perfect = 0, learning = 0, unseen = 0;
-  ALL_QUESTIONS.forEach(q => {
-    const st = getStatus(q.id);
-    if (st === "perfect") perfect++; else if (st === "learning") learning++; else unseen++;
-  });
-
-  const pct = total > 0 ? Math.round((perfect / total) * 100) : 0;
-  document.getElementById("overall-pct").textContent = `${pct}% 完了 (${perfect}/${total})`;
-  document.getElementById("stat-perfect").textContent = perfect;
-  document.getElementById("stat-learning").textContent = learning;
-  document.getElementById("stat-unseen").textContent = unseen;
-  document.getElementById("bar-perfect").style.width = total > 0 ? `${(perfect / total) * 100}%` : "0%";
-  document.getElementById("bar-learning").style.width = total > 0 ? `${(learning / total) * 100}%` : "0%";
-
-  const weakList = ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect");
-  document.getElementById("weak-count").textContent = `${weakList.length}問`;
-  document.getElementById("start-weak").disabled = weakList.length === 0;
-}
-
-let session = null;
-function showView(name) {
-  ["home", "quiz", "result"].forEach(v => {
-    const el = document.getElementById(`view-${v}`);
-    if (el) el.classList.toggle("hidden", v !== name);
-  });
-}
-
-function startQuiz(modeName, questionList, loopUntilMastered) {
-  if (!questionList || questionList.length === 0) return;
-  const uniqueCount = new Set(questionList.map(q => q.id)).size;
-  session = {
-    modeName, loopUntilMastered, initialTotal: uniqueCount,
-    queue: questionList.map(q => ({ ...q, isRevenge: false })),
-    completedCount: 0, firstTryCorrect: 0, seenThisSession: new Set(), missedThisSession: new Map(),
-    startTime: Date.now(), awaitingNext: false, current: null, lastQuestionId: null, autoNextTimer: null
-  };
-  document.getElementById("quiz-mode-label").textContent = modeName;
-  showView("quiz");
-  renderCurrentCard();
-}
-
-function renderCurrentCard() {
-  if (session.autoNextTimer) { clearTimeout(session.autoNextTimer); session.autoNextTimer = null; }
-
-  let nextIdx = (session.queue.length > 1 && session.queue[0].id === session.lastQuestionId) ? 1 : 0;
-  session.current = session.queue.splice(nextIdx, 1)[0];
-  session.lastQuestionId = session.current.id;
-
-  const card = document.getElementById("flash-card");
-  card.classList.remove("correct-flash", "wrong-flash");
-  card.style.transform = "";
-  document.getElementById("stamp-o").style.opacity = 0; document.getElementById("stamp-x").style.opacity = 0;
-  document.getElementById("feedback-box").classList.add("hidden");
-  document.getElementById("ox-controls").classList.remove("hidden");
+  const bCont=document.getElementById("report-badge-container");
+  if(session.current.report_count>0||session.current.status){
+    let t="⚑ 不具合報告あり",c="report-badge";
+    if(session.current.status==="修正済み"){t="⚑ 修正済み";c+=" resolved"}else if(session.current.status==="問題なし"){t="⚑ 確認済み";c+=" ok"}else if(session.current.status)t=`⚑ ${session.current.status}`;
+    bCont.innerHTML=`<div class="${c}">${t} <span style="opacity:0.7;">[報告:${session.current.report_count}件]</span></div>`;
+  }else bCont.innerHTML="";
   
-  // レポートバッジの描画
-  const badgeContainer = document.getElementById("report-badge-container");
-  if (session.current.report_count > 0 || session.current.status) {
-    let bText = "⚑ 不具合報告あり";
-    let bClass = "report-badge";
-    if (session.current.status === "修正済み") { bText = "⚑ 修正済み"; bClass += " resolved"; }
-    else if (session.current.status === "問題なし") { bText = "⚑ 確認済み"; bClass += " ok"; }
-    else if (session.current.status) { bText = `⚑ ${session.current.status}`; }
-    badgeContainer.innerHTML = `<div class="${bClass}">${bText} <span style="opacity:0.7;">[報告:${session.current.report_count}件]</span></div>`;
-  } else {
-    badgeContainer.innerHTML = "";
-  }
-
-  session.awaitingNext = false;
-
-  let progressText = "";
-  let pct = 0;
-  if (session.loopUntilMastered) {
-    const uniqueRemaining = new Set([session.current.id, ...session.queue.map(q => q.id)]).size;
-    progressText = `残り ${uniqueRemaining} 問で卒業`;
-    pct = Math.round(((session.initialTotal - uniqueRemaining) / session.initialTotal) * 100);
-  } else {
-    const remainingCount = session.queue.length + 1;
-    progressText = `残り ${remainingCount} 問`;
-    pct = Math.round(((session.initialTotal - remainingCount) / session.initialTotal) * 100);
-  }
+  session.awaitingNext=false;
+  let pText="",pct=0;
+  if(session.loopUntilMastered){const rem=new Set([session.current.id,...session.queue.map(q=>q.id)]).size;pText=`残り ${rem} 問で卒業`;pct=Math.round(((session.initialTotal-rem)/session.initialTotal)*100)}
+  else{const rem=session.queue.length+1;pText=`残り ${rem} 問`;pct=Math.round(((session.initialTotal-rem)/session.initialTotal)*100)}
+  document.getElementById("quiz-progress-text").textContent=pText;document.getElementById("quiz-progress-fill").style.width=`${Math.min(100,Math.max(0,pct))}%`;
+  document.getElementById("card-cat-tag").textContent=`#${String(session.current.num).padStart(3,"0")} 性質・消火`;
+  document.getElementById("card-revenge-tag").classList.toggle("hidden",!session.current.isRevenge);
+  document.getElementById("q-statement").textContent=session.current.statement;
   
-  document.getElementById("quiz-progress-text").textContent = progressText;
-  document.getElementById("quiz-progress-fill").style.width = `${Math.min(100, Math.max(0, pct))}%`;
-
-  document.getElementById("card-cat-tag").textContent = `#${String(session.current.num).padStart(3, "0")} 性質・消火`;
-  document.getElementById("card-revenge-tag").classList.toggle("hidden", !session.current.isRevenge);
-  document.getElementById("q-statement").textContent = session.current.statement;
-  
-  let reported;
-  try { reported = JSON.parse(localStorage.getItem("otsu4_reported") || "[]"); } catch(e) { reported = []; }
-  const btnRep = document.getElementById("btn-report-q");
-  if (reported.includes(session.current.id)) {
-    btnRep.textContent = "✓ 報告済み"; btnRep.disabled = true;
-  } else {
-    btnRep.textContent = "⚑ 問題を報告"; btnRep.disabled = false;
-  }
+  let rep;try{rep=JSON.parse(localStorage.getItem("otsu4_reported")||"[]")}catch(e){rep=[]}
+  const b=document.getElementById("btn-report-q");if(rep.includes(session.current.id)){b.textContent="✓ 報告済み";b.disabled=true}else{b.textContent="⚑ 問題を報告";b.disabled=false}
 }
-
-function submitAnswer(userChoice) {
-  if (!session || session.awaitingNext) return;
-  session.awaitingNext = true;
-  const current = session.current;
-  const isCorrect = (userChoice === current.answer);
-  playTone(isCorrect);
-
-  const isFirstSeen = !session.seenThisSession.has(current.id);
-  session.seenThisSession.add(current.id);
-  
-  if (!progress[current.id]) progress[current.id] = { streak: 0 };
-
-  if (isCorrect) {
-    if (isFirstSeen) session.firstTryCorrect++;
-    progress[current.id].streak += 1;
-  } else {
-    progress[current.id].streak = 0;
-    if (isFirstSeen) session.missedThisSession.set(current.id, current);
-  }
+function submitAnswer(userChoice){
+  if(!session||session.awaitingNext)return;session.awaitingNext=true;
+  const cur=session.current,isCor=(userChoice===cur.answer);playTone(isCor);
+  const isFirst=!session.seenThisSession.has(cur.id);session.seenThisSession.add(cur.id);
+  if(!progress[cur.id])progress[cur.id]={streak:0};
+  if(isCor){if(isFirst)session.firstTryCorrect++;progress[cur.id].streak+=1}else{progress[cur.id].streak=0;if(isFirst)session.missedThisSession.set(cur.id,cur)}
   saveProgress();
-
-  const card = document.getElementById("flash-card");
-  card.classList.add(isCorrect ? "correct-flash" : "wrong-flash");
-  document.getElementById("stamp-o").style.opacity = userChoice ? 1 : 0;
-  document.getElementById("stamp-x").style.opacity = !userChoice ? 1 : 0;
-
-  if (session.loopUntilMastered) {
-    if (getStatus(current.id) !== "perfect") session.queue.push({ ...current, isRevenge: true });
-  } else {
-    session.completedCount++;
-  }
-
-  if (isCorrect) {
-    document.getElementById("ox-controls").classList.add("hidden");
-    session.autoNextTimer = setTimeout(() => { nextCard(); }, 400);
-  } else {
-    const verdictEl = document.getElementById("fb-verdict");
-    verdictEl.textContent = `× 不正解（正解は「${current.answer ? "〇" : "×"}」）`;
-    verdictEl.className = `fb-verdict ng`;
-    document.getElementById("fb-streak").textContent = `連続正解: ${progress[current.id].streak}回`;
-    document.getElementById("fb-exp").textContent = current.explanation;
-    document.getElementById("ox-controls").classList.add("hidden");
-    document.getElementById("feedback-box").classList.remove("hidden");
+  const card=document.getElementById("flash-card");card.classList.add(isCor?"correct-flash":"wrong-flash");
+  document.getElementById("stamp-o").style.opacity=userChoice?1:0;document.getElementById("stamp-x").style.opacity=!userChoice?1:0;
+  if(session.loopUntilMastered){if(getStatus(cur.id)!=="perfect")session.queue.push({...cur,isRevenge:true})}else session.completedCount++;
+  if(isCor){document.getElementById("ox-controls").classList.add("hidden");session.autoNextTimer=setTimeout(()=>{nextCard()},400)}
+  else{
+    const v=document.getElementById("fb-verdict");v.textContent=`× 不正解（正解は「${cur.answer?"〇":"×"}」）`;v.className="fb-verdict ng";
+    document.getElementById("fb-streak").textContent=`連続正解: ${progress[cur.id].streak}回`;document.getElementById("fb-exp").textContent=cur.explanation;
+    document.getElementById("ox-controls").classList.add("hidden");document.getElementById("feedback-box").classList.remove("hidden");
   }
 }
-
-function nextCard() {
-  if (!session || !session.awaitingNext) return;
-  if (session.autoNextTimer) { clearTimeout(session.autoNextTimer); session.autoNextTimer = null; }
-  if (session.queue.length === 0) finishQuiz();
-  else renderCurrentCard();
-}
-
-function finishQuiz() {
-  if (session.autoNextTimer) { clearTimeout(session.autoNextTimer); session.autoNextTimer = null; }
-  const elapsedSec = Math.max(1, Math.round((Date.now() - session.startTime) / 1000));
-  const rate = session.initialTotal > 0 ? Math.round((session.firstTryCorrect / session.initialTotal) * 100) : 0;
-  const missedArr = Array.from(session.missedThisSession.values());
-
-  document.getElementById("res-mode-name").textContent = `${session.modeName} 完了！`;
-  document.getElementById("res-score").textContent = `${rate}%`;
-  document.getElementById("res-detail").textContent = `一発正解: ${session.firstTryCorrect} / ${session.initialTotal}問（タイム: ${elapsedSec}秒）`;
-
-  const headline = document.getElementById("res-headline");
-  if (rate === 100) headline.textContent = "🎉 パーフェクト！完璧です！";
-  else if (rate >= 60) headline.textContent = "👍 お疲れ様です！";
-  else headline.textContent = "🔥 リベンジで定着させよう";
-
-  const missedBox = document.getElementById("res-missed-box");
-  const retryBtn = document.getElementById("btn-retry-missed");
-  const missedListEl = document.getElementById("res-missed-list");
-  document.getElementById("res-missed-count").textContent = `${missedArr.length}問`;
-
-  if (missedArr.length === 0) {
-    missedBox.classList.add("hidden"); retryBtn.classList.add("hidden");
-  } else {
-    missedBox.classList.remove("hidden"); retryBtn.classList.remove("hidden");
-    missedListEl.innerHTML = missedArr.map(m => `
-      <div class="missed-item"><div class="missed-q">#${String(m.num).padStart(3,"0")} ${m.statement}</div>
-      <div class="missed-a">正解: <strong>${m.answer ? "〇" : "×"}</strong> ／ ${m.explanation}</div></div>
-    `).join("");
-    retryBtn.onclick = () => startQuiz("間違えた問題リベンジ", shuffle(missedArr), true);
-  }
+function nextCard(){if(!session||!session.awaitingNext)return;if(session.autoNextTimer){clearTimeout(session.autoNextTimer);session.autoNextTimer=null}if(session.queue.length===0)finishQuiz();else renderCurrentCard()}
+function finishQuiz(){
+  if(session.autoNextTimer){clearTimeout(session.autoNextTimer);session.autoNextTimer=null}
+  const elSec=Math.max(1,Math.round((Date.now()-session.startTime)/1000)),rate=session.initialTotal>0?Math.round((session.firstTryCorrect/session.initialTotal)*100):0,missedArr=Array.from(session.missedThisSession.values());
+  document.getElementById("res-mode-name").textContent=`${session.modeName} 完了！`;document.getElementById("res-score").textContent=`${rate}%`;document.getElementById("res-detail").textContent=`一発正解: ${session.firstTryCorrect} / ${session.initialTotal}問（タイム: ${elSec}秒）`;
+  const hl=document.getElementById("res-headline");if(rate===100)hl.textContent="🎉 パーフェクト！完璧です！";else if(rate>=60)hl.textContent="👍 お疲れ様です！";else hl.textContent="🔥 リベンジで定着させよう";
+  const mBox=document.getElementById("res-missed-box"),rBtn=document.getElementById("btn-retry-missed"),mList=document.getElementById("res-missed-list");
+  document.getElementById("res-missed-count").textContent=`${missedArr.length}問`;
+  if(missedArr.length===0){mBox.classList.add("hidden");rBtn.classList.add("hidden")}else{mBox.classList.remove("hidden");rBtn.classList.remove("hidden");mList.innerHTML=missedArr.map(m=>`<div class="missed-item"><div class="missed-q">#${String(m.num).padStart(3,"0")} ${m.statement}</div><div class="missed-a">正解: <strong>${m.answer?"〇":"×"}</strong> ／ ${m.explanation}</div></div>`).join("");rBtn.onclick=()=>startQuiz("間違えた問題リベンジ",shuffle(missedArr),true)}
   showView("result");
 }
 
-// Swipe Gesture
-const flashCard = document.getElementById("flash-card");
-let startX = 0, currentX = 0, isDragging = false;
-function onDragStart(clientX) {
-  if (!session || session.awaitingNext) return;
-  isDragging = true; startX = clientX; currentX = 0; flashCard.classList.add("dragging");
-}
-function onDragMove(clientX) {
-  if (!isDragging) return;
-  currentX = clientX - startX;
-  flashCard.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.04}deg)`;
-  const ratio = Math.min(1, Math.abs(currentX) / 90);
-  document.getElementById("stamp-o").style.opacity = currentX > 0 ? ratio : 0;
-  document.getElementById("stamp-x").style.opacity = currentX < 0 ? ratio : 0;
-}
-function onDragEnd() {
-  if (!isDragging) return;
-  isDragging = false; flashCard.classList.remove("dragging");
-  if (currentX > 85) submitAnswer(true);
-  else if (currentX < -85) submitAnswer(false);
-  else {
-    flashCard.style.transform = "";
-    document.getElementById("stamp-o").style.opacity = 0;
-    document.getElementById("stamp-x").style.opacity = 0;
-  }
-}
-flashCard.addEventListener("touchstart", e => onDragStart(e.touches[0].clientX), { passive: true });
-flashCard.addEventListener("touchmove", e => onDragMove(e.touches[0].clientX), { passive: true });
-flashCard.addEventListener("touchend", onDragEnd);
-flashCard.addEventListener("mousedown", e => onDragStart(e.clientX));
-window.addEventListener("mousemove", e => onDragMove(e.clientX));
-window.addEventListener("mouseup", onDragEnd);
+const flashCard=document.getElementById("flash-card");let startX=0,currentX=0,isDragging=false;
+function onDragStart(e){if(!session||session.awaitingNext)return;isDragging=true;startX=e;currentX=0;flashCard.classList.add("dragging")}
+function onDragMove(e){if(!isDragging)return;currentX=e-startX;flashCard.style.transform=`translateX(${currentX}px) rotate(${currentX*0.04}deg)`;const ratio=Math.min(1,Math.abs(currentX)/90);document.getElementById("stamp-o").style.opacity=currentX>0?ratio:0;document.getElementById("stamp-x").style.opacity=currentX<0?ratio:0}
+function onDragEnd(){if(!isDragging)return;isDragging=false;flashCard.classList.remove("dragging");if(currentX>85)submitAnswer(true);else if(currentX<-85)submitAnswer(false);else{flashCard.style.transform="";document.getElementById("stamp-o").style.opacity=0;document.getElementById("stamp-x").style.opacity=0}}
+flashCard.addEventListener("touchstart",e=>onDragStart(e.touches[0].clientX),{passive:true});flashCard.addEventListener("touchmove",e=>onDragMove(e.touches[0].clientX),{passive:true});flashCard.addEventListener("touchend",onDragEnd);
+flashCard.addEventListener("mousedown",e=>onDragStart(e.clientX));window.addEventListener("mousemove",e=>onDragMove(e.clientX));window.addEventListener("mouseup",onDragEnd);
 
-// Event Listeners
-document.getElementById("btn-ans-o").onclick = () => submitAnswer(true);
-document.getElementById("btn-ans-x").onclick = () => submitAnswer(false);
-document.getElementById("btn-next").onclick = nextCard;
-document.getElementById("btn-quit").onclick = () => { renderHome(); showView("home"); };
-document.getElementById("btn-back-home").onclick = () => { renderHome(); showView("home"); };
+document.getElementById("btn-ans-o").onclick=()=>submitAnswer(true);document.getElementById("btn-ans-x").onclick=()=>submitAnswer(false);
+document.getElementById("btn-next").onclick=nextCard;document.getElementById("btn-quit").onclick=()=>{renderHome();showView("home")};document.getElementById("btn-back-home").onclick=()=>{renderHome();showView("home")};
+document.addEventListener("keydown",e=>{const tag=document.activeElement?document.activeElement.tagName.toLowerCase():"";if(tag==="input"||tag==="textarea")return;const v=document.getElementById("view-quiz");if(v&&v.classList.contains("hidden"))return;if(!session)return;if(!session.awaitingNext){if(e.key==="ArrowRight"){e.preventDefault();submitAnswer(true)}if(e.key==="ArrowLeft"){e.preventDefault();submitAnswer(false)}}else{if(e.key===" "||e.key==="Enter"||e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();nextCard()}}});
 
-document.addEventListener("keydown", e => {
-  const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
-  if (activeTag === "input" || activeTag === "textarea") return;
-  const quizView = document.getElementById("view-quiz");
-  if (quizView && quizView.classList.contains("hidden")) return;
-  if (!session) return;
-  if (!session.awaitingNext) {
-    if (e.key === "ArrowRight") { e.preventDefault(); submitAnswer(true); }
-    if (e.key === "ArrowLeft") { e.preventDefault(); submitAnswer(false); }
-  } else {
-    if (e.key === " " || e.key === "Enter" || e.key === "ArrowRight" || e.key === "ArrowLeft") {
-      e.preventDefault(); nextCard();
-    }
-  }
-});
+document.getElementById("start-quick10").onclick=()=>startQuiz("サクッと10問",shuffle(ALL_QUESTIONS).slice(0,10),false);
+document.getElementById("start-endless").onclick=()=>startQuiz("延々と続ける",shuffle(ALL_QUESTIONS),true);
+document.getElementById("start-weak").onclick=()=>startQuiz("うろ覚え特訓",shuffle(ALL_QUESTIONS.filter(q=>getStatus(q.id)!=="perfect")),true);
+document.getElementById("btn-sound").onclick=(e)=>{soundEnabled=!soundEnabled;e.target.textContent=soundEnabled?"🔊 音ON":"🔇 音OFF"};
+document.getElementById("btn-reset").onclick=()=>{if(confirm("学習履歴をリセットしますか？")){progress={};saveProgress();renderHome()}};
+document.getElementById("btn-report-q").onclick=()=>{if(!session||!session.current)return;reportIssue(session.current.id);document.getElementById("btn-report-q").textContent="送信中..."};
 
-document.getElementById("start-quick10").onclick = () => startQuiz("サクッと10問", shuffle(ALL_QUESTIONS).slice(0, 10), false);
-document.getElementById("start-endless").onclick = () => startQuiz("延々と続ける", shuffle(ALL_QUESTIONS), true);
-document.getElementById("start-weak").onclick = () => startQuiz("うろ覚え特訓", shuffle(ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect")), true);
-
-document.getElementById("btn-sound").onclick = (e) => {
-  soundEnabled = !soundEnabled; e.target.textContent = soundEnabled ? "🔊 音ON" : "🔇 音OFF";
-};
-document.getElementById("btn-reset").onclick = () => {
-  if (confirm("学習履歴をリセットしますか？")) { progress = {}; saveProgress(); renderHome(); }
-};
-
-document.getElementById("btn-report-q").onclick = () => {
-  if (!session || !session.current) return;
-  reportIssue(session.current.id);
-  document.getElementById("btn-report-q").textContent = "送信中...";
-};
-
-function renderBrowser(keyword = "") {
-  const listEl = document.getElementById("browser-list");
-  const kw = keyword.trim().toLowerCase();
-  const filtered = ALL_QUESTIONS.filter(q =>
-    !kw || q.statement.toLowerCase().includes(kw) || q.explanation.toLowerCase().includes(kw) || String(q.num).includes(kw)
-  );
-  document.getElementById("browser-title").textContent = `📚 全問題・解説一覧 (${filtered.length}件)`;
-  listEl.innerHTML = filtered.map(q => {
-    const st = getStatus(q.id);
-    const stLabel = st === "perfect" ? "🟢 完璧" : st === "learning" ? "🟡 うろ覚え" : "⚪ 未学習";
-    
-    let reportHtml = "";
-    if (q.report_count > 0 || q.status) {
-      let bText = "不具合報告あり";
-      let color = "#b91c1c";
-      if (q.status === "修正済み") { bText = "修正済み"; color = "#15803d"; }
-      else if (q.status === "問題なし") { bText = "確認済み"; color = "#64748b"; }
-      else if (q.status) { bText = q.status; }
-      reportHtml = `<span style="font-size:10px; color:${color}; margin-left:8px;">[⚑ ${bText}]</span>`;
-    }
-
-    return `
-      <div class="browser-item">
-        <div class="browser-meta"><span>#${String(q.num).padStart(3,"0")} [性質・消火] ${reportHtml}</span><span>${stLabel}</span></div>
-        <div style="font-weight:800; margin-bottom:4px;">${q.statement}</div>
-        <div style="color:${q.answer ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight:700;">
-          答え: ${q.answer ? "〇" : "×"} — <span style="color:var(--muted); font-weight:600;">${q.explanation}</span>
-        </div>
-      </div>
-    `;
+function renderBrowser(kw=""){
+  const listEl=document.getElementById("browser-list");kw=kw.trim().toLowerCase();
+  const f=ALL_QUESTIONS.filter(q=>!kw||q.statement.toLowerCase().includes(kw)||q.explanation.toLowerCase().includes(kw)||String(q.num).includes(kw));
+  document.getElementById("browser-title").textContent=`📚 全問題・解説一覧 (${f.length}件)`;
+  listEl.innerHTML=f.map(q=>{
+    const stLabel=getStatus(q.id)==="perfect"?"🟢 完璧":getStatus(q.id)==="learning"?"🟡 うろ覚え":"⚪ 未学習";
+    let rep="";if(q.report_count>0||q.status){let t="不具合報告あり",c="#b91c1c";if(q.status==="修正済み"){t="修正済み";c="#15803d"}else if(q.status==="問題なし"){t="確認済み";c="#64748b"}else if(q.status)t=q.status;rep=`<span style="font-size:10px;color:${c};margin-left:8px;">[⚑ ${t}]</span>`}
+    return`<div class="browser-item"><div class="browser-meta"><span>#${String(q.num).padStart(3,"0")} [性質・消火] ${rep}</span><span>${stLabel}</span></div><div style="font-weight:800;margin-bottom:4px;">${q.statement}</div><div style="color:${q.answer?'var(--accent-green)':'var(--accent-red)'};font-weight:700;">答え: ${q.answer?"〇":"×"} — <span style="color:var(--muted);font-weight:600;">${q.explanation}</span></div></div>`
   }).join("");
 }
-document.getElementById("btn-browse").onclick = () => { renderBrowser(); document.getElementById("modal-browser").classList.remove("hidden"); };
-document.getElementById("btn-close-browser").onclick = () => { document.getElementById("modal-browser").classList.add("hidden"); };
-document.getElementById("browser-search").addEventListener("input", e => renderBrowser(e.target.value));
+document.getElementById("btn-browse").onclick=()=>{renderBrowser();document.getElementById("modal-browser").classList.remove("hidden")};
+document.getElementById("btn-close-browser").onclick=()=>{document.getElementById("modal-browser").classList.add("hidden")};
+document.getElementById("browser-search").addEventListener("input",e=>renderBrowser(e.target.value));
 
-// Bootstrap
-window.addEventListener("DOMContentLoaded", initApp);
+window.addEventListener("DOMContentLoaded",initApp);
 </script>
 </body>
 </html>
