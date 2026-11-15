@@ -385,7 +385,7 @@
           <div class="q-statement" id="q-statement">読み込み中...</div>
         </div>
         
-        <div class="swipe-hint" aria-hidden="true"><span>← 左スワイプで「×」</span><span>右スワイプで「〇」 →</span></div>
+        <div class="swipe-hint" id="swipe-hint" aria-hidden="true"><span>← 左スワイプで「×」</span><span>右スワイプで「〇」 →</span></div>
       </div>
     </div>
     
@@ -948,6 +948,9 @@ function renderCurrentCard() {
   document.getElementById("card-revenge-tag").classList.toggle("hidden", !session.current.isRevenge);
   document.getElementById("q-statement").textContent = session.current.statement;
   
+  const hint = document.getElementById("swipe-hint");
+  if(hint) hint.innerHTML = '<span>← 左スワイプで「×」</span><span>右スワイプで「〇」 →</span>';
+  
   updateReportButtonState();
   card.focus();
 }
@@ -997,6 +1000,9 @@ function submitAnswer(userChoice) {
     
     document.getElementById("fb-streak").textContent = `連続正解: ${progress[cur.id].streak}回`;
     document.getElementById("fb-exp").textContent = cur.explanation;
+    
+    const hint = document.getElementById("swipe-hint");
+    if(hint) hint.innerHTML = '<span></span><span>右スワイプで「次へ」 →</span>';
     
     document.getElementById("feedback-box").classList.remove("hidden");
     updateReportButtonState();
@@ -1070,7 +1076,7 @@ const flashCard = document.getElementById("flash-card");
 let startX = 0, currentX = 0, isDragging = false;
 
 function onDragStart(clientX) {
-  if (!session || session.awaitingNext) return;
+  if (!session) return;
   isDragging = true; startX = clientX; currentX = 0; flashCard.classList.add("dragging");
 }
 function onDragMove(clientX) {
@@ -1081,9 +1087,17 @@ function onDragMove(clientX) {
 function onDragEnd() {
   if (!isDragging) return;
   isDragging = false; flashCard.classList.remove("dragging");
-  if (currentX > 85) submitAnswer(true);
-  else if (currentX < -85) submitAnswer(false);
-  else resetCardPosition();
+  
+  if (!session.awaitingNext) {
+    // 回答前
+    if (currentX > 85) submitAnswer(true);
+    else if (currentX < -85) submitAnswer(false);
+    else resetCardPosition();
+  } else {
+    // 回答後（解説画面でのスワイプ）
+    if (currentX > 85) nextCard(); // 右スワイプで次へ
+    else resetCardPosition(); // 左スワイプや閾値未満は何もしない
+  }
 }
 function onDragCancel() {
   if (!isDragging) return;
