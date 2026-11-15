@@ -126,23 +126,85 @@
   .beta-survey-btn:active { transform: scale(0.98); }
   .beta-text .beta-sub-text { font-size: 10.5px; color: var(--c-text-sub); line-height: 1.5; margin: 0; padding-top: 12px; border-top: 1px dashed var(--c-border); }
 
+  /* ------------------------------------------
+     モード選択ボタン (UI改善・開始ボタン統合版)
+     ------------------------------------------ */
   .mode-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .mode-btn { background: var(--c-card); border: 1px solid var(--c-border); border-radius: 16px; padding: 16px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow-sm); transition: transform 0.1s, box-shadow 0.2s; position: relative; overflow: hidden; }
-  .mode-btn:active:not(:disabled) { transform: scale(0.98); }
+  
+  .mode-btn { 
+    background: var(--c-card); border: 1px solid var(--c-border); border-radius: 16px; 
+    padding: 16px; text-align: left; cursor: pointer; outline: none;
+    display: flex; flex-direction: column; gap: 10px; 
+    box-shadow: var(--shadow-sm); 
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, border-color 0.2s; 
+    position: relative; overflow: hidden; 
+  }
+  
+  /* ホバー・フォーカス時の視覚効果 */
+  @media (hover: hover) {
+    .mode-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--c-blue);
+    }
+  }
+  .mode-btn:focus-visible {
+    border-color: var(--c-blue);
+    box-shadow: 0 0 0 3px rgba(49, 89, 217, 0.2);
+  }
+  /* クリック時の押し込み感 */
+  .mode-btn:active:not(:disabled) { 
+    transform: translateY(1px); 
+    box-shadow: var(--shadow-sm); 
+  }
   .mode-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   
-  .mode-btn.primary-mode { background: var(--c-navy); color: #fff; border: none; box-shadow: 0 8px 20px rgba(16,31,101,0.2); }
-  .mode-btn.primary-mode::after { content: ''; position: absolute; top: 0; right: 0; width: 60px; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1)); transform: skewX(-20deg); }
+  /* 特殊モード (サクッとテスト) */
+  .mode-btn.primary-mode { 
+    background: var(--c-navy); color: #fff; border: none; 
+    box-shadow: 0 8px 20px rgba(16,31,101,0.2); 
+  }
+  @media (hover: hover) {
+    .mode-btn.primary-mode:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(16,31,101,0.3); border: none; }
+  }
+  .mode-btn.primary-mode::after { 
+    content: ''; position: absolute; top: 0; right: 0; width: 60px; height: 100%; 
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1)); 
+    transform: skewX(-20deg); pointer-events: none;
+  }
   
   .mode-title { font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
-  .mode-desc { font-size: 11px; opacity: 0.8; line-height: 1.4; font-weight: 600; position: relative; z-index: 1; }
+  .mode-desc { font-size: 11px; opacity: 0.8; line-height: 1.5; font-weight: 600; position: relative; z-index: 1; flex: 1; }
   .mode-btn:not(.primary-mode) .mode-desc { color: var(--c-text-sub); }
   
   .pill-count { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 900; }
   .primary-mode .pill-count { background: var(--c-yellow); color: var(--c-navy); }
   .mode-btn:not(.primary-mode) .pill-count { background: var(--c-bg); color: var(--c-blue); border: 1px solid rgba(49,89,217,0.2); }
 
-  .btn-reset { font-size: 11px; font-weight: 700; background: none; border: none; color: var(--c-text-sub); text-decoration: underline; cursor: pointer; padding: 10px; margin-top: 8px; }
+  /* 内包される「問題を始める」疑似ボタン */
+  .mode-action-btn {
+    font-size: 12.5px; font-weight: 900; text-align: center; padding: 12px; border-radius: 10px;
+    margin-top: 4px; transition: background-color 0.2s; position: relative; z-index: 1;
+  }
+  .mode-btn:not(.primary-mode) .mode-action-btn {
+    background: rgba(49,89,217,0.08); color: var(--c-blue);
+  }
+  @media (hover: hover) {
+    .mode-btn:not(.primary-mode):hover:not(:disabled) .mode-action-btn {
+      background: rgba(49,89,217,0.15);
+    }
+  }
+  
+  .mode-btn.primary-mode .mode-action-btn {
+    background: var(--c-yellow); color: var(--c-navy); box-shadow: 0 4px 10px rgba(255,216,61,0.2);
+  }
+  @media (hover: hover) {
+    .mode-btn.primary-mode:hover:not(:disabled) .mode-action-btn {
+      background: #ffdf60;
+    }
+  }
+
+  .btn-reset { font-size: 11px; font-weight: 700; background: none; border: none; color: var(--c-text-sub); text-decoration: underline; cursor: pointer; padding: 10px; margin-top: 8px; outline: none; }
 
   .coming-soon-box { background: var(--c-card); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: var(--shadow-sm); border: 1px dashed #cbd5e1; animation: fadeIn 0.3s ease; }
   .coming-soon-icon { font-size: 40px; margin-bottom: 16px; }
@@ -162,7 +224,7 @@
      ========================================== */
   #view-quiz { padding: 12px 16px; } 
   .quiz-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-  .quit-btn { background: #fff; border: 1px solid var(--c-border); color: var(--c-text-main); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .quit-btn { background: #fff; border: 1px solid var(--c-border); color: var(--c-text-main); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); outline: none; }
   
   .progress-wrap { flex: 1; }
   .progress-meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; color: var(--c-navy); margin-bottom: 4px; letter-spacing: 0.5px; }
@@ -170,7 +232,7 @@
   .progress-fill { height: 100%; background: var(--c-blue); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
   .card-stage { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 8px; position: relative; min-height: auto; user-select: none; touch-action: pan-y; perspective: 1000px; }
-  .flash-card { width: 100%; background: var(--c-card); border-radius: 20px; padding: 20px 16px; box-shadow: var(--shadow-md); border: 2px solid transparent; position: relative; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s; cursor: grab; min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+  .flash-card { width: 100%; background: var(--c-card); border-radius: 20px; padding: 20px 16px; box-shadow: var(--shadow-md); border: 2px solid transparent; position: relative; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s; cursor: grab; min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; outline: none; }
   .flash-card.dragging { transition: none; cursor: grabbing; box-shadow: var(--shadow-lg); }
   
   .flash-card.correct-flash { border-color: var(--c-correct); background: var(--c-correct-bg); }
@@ -189,7 +251,7 @@
   .card-overlay-correct.show .card-overlay-text { transform: scale(1); }
 
   .ox-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 0; margin-top: 12px; }
-  .ox-btn { border: 2px solid transparent; border-radius: 16px; padding: 14px 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: var(--shadow-sm); transition: all 0.15s; position: relative; overflow: hidden; }
+  .ox-btn { border: 2px solid transparent; border-radius: 16px; padding: 14px 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: var(--shadow-sm); transition: all 0.15s; position: relative; overflow: hidden; outline: none; }
   .ox-btn:active { transform: scale(0.96); box-shadow: none; }
   .ox-btn span:first-child { font-size: 28px; font-weight: 900; line-height: 1; }
   .ox-sub { font-size: 11px; font-weight: 900; letter-spacing: 0.5px; }
@@ -221,7 +283,7 @@
   .report-btn:hover:not(:disabled) { background: #f1f5f9; }
   .report-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   
-  .next-btn { background: var(--c-navy); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(16,31,101,0.2); transition: transform 0.1s; }
+  .next-btn { background: var(--c-navy); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(16,31,101,0.2); transition: transform 0.1s; outline: none; }
   .next-btn:active { transform: scale(0.96); }
 
   .report-badge { background: #fef2f2; color: #b91c1c; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; border: 1px solid #fecaca; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; }
@@ -243,8 +305,8 @@
   .missed-item { background: #fff; border-radius: 12px; padding: 12px; font-size: 12px; color: var(--c-text-main); }
   .missed-q { font-weight: 900; color: var(--c-navy); margin-bottom: 6px; line-height: 1.4; }
   
-  .res-btn-primary { background: var(--c-yellow); color: var(--c-navy); border: none; border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 900; width: 100%; box-shadow: 0 8px 20px rgba(255,216,61,0.2); margin-bottom: 12px; cursor: pointer; }
-  .res-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 900; width: 100%; cursor: pointer; }
+  .res-btn-primary { background: var(--c-yellow); color: var(--c-navy); border: none; border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 900; width: 100%; box-shadow: 0 8px 20px rgba(255,216,61,0.2); margin-bottom: 12px; cursor: pointer; outline: none; }
+  .res-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 900; width: 100%; cursor: pointer; outline: none; }
 
   /* ==========================================
      検索モーダル
@@ -356,21 +418,26 @@
         </div>
 
         <div class="mode-grid">
+          <!-- カード全体をbutton化し、内部に疑似ボタンを配置。イベントの二重発火を防ぐ構造 -->
           <button class="mode-btn normal-mode" id="start-normal" data-mode="normal">
             <div class="mode-title"><span>📖 全問出題 (通常モード)</span><span class="pill-count" id="normal-count">0問</span></div>
             <div class="mode-desc">全問題を順番に出題。間違えてもループしません。</div>
+            <div class="mode-action-btn">このモードで問題を始める &rarr;</div>
           </button>
           <button class="mode-btn primary-mode" id="start-quick10" data-mode="quick10">
             <div class="mode-title"><span>⚡ サクッとテスト</span><span class="pill-count" id="quick-count">10問</span></div>
             <div class="mode-desc">ランダムに出題。隙間時間の腕試しに最適です。</div>
+            <div class="mode-action-btn">このモードで問題を始める &rarr;</div>
           </button>
           <button class="mode-btn hell-mode" id="start-endless" data-mode="endless">
             <div class="mode-title"><span>🔥 エンドレス特訓</span><span class="pill-count">∞</span></div>
             <div class="mode-desc">全問題をシャッフル。3連続正解になるまで出題し続けます。</div>
+            <div class="mode-action-btn">このモードで問題を始める &rarr;</div>
           </button>
           <button class="mode-btn" id="start-weak" style="border-color:var(--c-blue);" data-mode="weakness">
             <div class="mode-title"><span class="c-blue">🎯 うろ覚え特訓</span><span class="pill-count" id="weak-count">0問</span></div>
             <div class="mode-desc">完璧ではない（未学習・うろ覚え）問題だけを集中特訓。</div>
+            <div class="mode-action-btn">このモードで問題を始める &rarr;</div>
           </button>
         </div>
         
@@ -521,7 +588,7 @@ function trackGA4(eventName, params) {
       gtag('event', eventName, params);
     }
   } catch (e) {
-    // オフラインやブロック環境でも学習を妨げないように握り潰す
+    // オフライン時等での例外を握り潰しアプリ停止を防ぐ
   }
 }
 
@@ -535,12 +602,12 @@ const STORAGE_CACHE_META = "otsu4_cache_meta";
 const STORAGE_PENDING_REPORTS = "otsu4_pending_reports";
 const STORAGE_REPORTED = "otsu4_reported";
 
-// プロトタイプ汚染防止のため Object.create(null) で初期化
+// プロトタイプ汚染防止・継承プロパティ衝突回避
 let progress = Object.create(null);
 let ALL_QUESTIONS = [];
 let cacheMeta = { version: 1, lastSyncTime: null };
 
-// トーストタイマーは2つに分けて確実に管理
+// トーストタイマーの確実な管理
 let toastShowTimeout = null;
 let toastHideTimeout = null;
 
@@ -554,6 +621,7 @@ let previousViewName = "home"; // 検索モーダル復帰用
 // ==========================================
 // 2. データ検証と永続化
 // ==========================================
+// 必須チェック（トリムして空文字にならないか）
 function isValidId(id) { return typeof id === 'string' && id.trim().length > 0; }
 
 function validateProgress(data) {
@@ -561,7 +629,7 @@ function validateProgress(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return valid;
   for (const key of Object.keys(data)) {
     const val = data[key];
-    // 数値型かつ0以上の整数であることを厳密にチェック
+    // streakが厳密に非負整数であることを検証
     if (val && typeof val === 'object' && typeof val.streak === 'number' && Number.isInteger(val.streak) && val.streak >= 0) {
       valid[key] = { streak: val.streak };
     }
@@ -577,7 +645,7 @@ function validateQuestionList(list) {
     if (!q || typeof q !== 'object') continue;
     if (typeof q.id !== 'string') continue;
     
-    // 重複チェック前に空白を除去
+    // 重複チェック前に空白を除去し、正規化されたIDで判定
     const normalizedId = q.id.trim();
     if (normalizedId.length === 0 || seenIds.has(normalizedId)) continue;
     
@@ -610,6 +678,7 @@ function loadLocalData() {
     const cm = localStorage.getItem(STORAGE_CACHE_META);
     if (cm) {
       const parsedCm = JSON.parse(cm);
+      // Object.assign等の危険性を排除し、安全に個別に取得
       if (parsedCm && typeof parsedCm === 'object') {
         if (typeof parsedCm.version === 'number') cacheMeta.version = parsedCm.version;
         if (typeof parsedCm.lastSyncTime === 'string') cacheMeta.lastSyncTime = parsedCm.lastSyncTime;
@@ -622,7 +691,7 @@ function loadLocalData() {
     if (c) ALL_QUESTIONS = validateQuestionList(JSON.parse(c));
   } catch (e) { }
 
-  // 効果音設定の復元
+  // 効果音設定の永続化復元
   try {
     const s = localStorage.getItem("otsu4_sound_setting");
     if (s !== null) {
@@ -653,7 +722,7 @@ function formatSyncTime(isoString) {
   return `最終同期: ${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-// 複数タブでの履歴同期
+// 複数タブでの履歴同期（安全性を強化）
 window.addEventListener('storage', (e) => {
   if (e.key === STORAGE_PROGRESS) {
     try {
@@ -689,11 +758,12 @@ async function initApp() {
       if (json && json.success === true && Array.isArray(json.data)) {
         const validatedData = validateQuestionList(json.data);
         
+        // 元データが0件でなく検証後0件の場合は検証エラー（既存キャッシュ保護対象）
         if (json.data.length > 0 && validatedData.length === 0) {
           throw new Error("データ検証エラー");
         }
         
-        // 0件が返された場合のキャッシュ保護
+        // 0件が返された場合のキャッシュ消失保護ロジック
         if (validatedData.length > 0) {
           ALL_QUESTIONS = validatedData;
           saveCache();
@@ -701,7 +771,7 @@ async function initApp() {
           if (ALL_QUESTIONS.length === 0) {
             showToast("サーバー上の公開問題が0件です。");
             ALL_QUESTIONS = [];
-            saveCache();
+            saveCache(); // 空のまま明示
           } else {
             // キャッシュが存在する場合は空データで上書きせず維持
             showToast("一時的な通信エラー: キャッシュを使用します");
@@ -723,6 +793,7 @@ async function initApp() {
         showToast("オフライン起動: キャッシュデータを使用します");
       }
     } finally {
+      // 確実なタイマー解除
       clearTimeout(timeoutId);
     }
   }
@@ -731,7 +802,7 @@ async function initApp() {
   loadingOverlay.classList.add("hidden");
   renderHome();
   
-  // 初期画面表示時は強制的に非表示クラスを外す
+  // 初期画面表示
   ["home", "quiz", "result"].forEach(v => {
     const el = document.getElementById(`view-${v}`);
     if (el) el.classList.toggle("hidden", v !== "home");
@@ -739,6 +810,7 @@ async function initApp() {
   trackGA4('app_screen_view', { screen_name: "home" });
 }
 
+// 連続表示時におけるタイマー重複・競合の確実な排除
 function showToast(msg) {
   const t = document.getElementById("toast");
   if (toastShowTimeout) clearTimeout(toastShowTimeout);
@@ -777,7 +849,7 @@ async function reportIssue(questionId) {
     return;
   }
   
-  // 送信待ちキューも確認して重複登録を防止
+  // オフライン重複登録防止: 送信待ちキューも確認
   let pending = [];
   try { 
     pending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS)); 
@@ -818,6 +890,7 @@ async function reportIssue(questionId) {
     }
   } catch (err) {
     const saved = savePendingReport(payload);
+    // 保存結果による分岐
     if (saved) {
       showToast("通信エラー：オフライン保存しました");
     } else {
@@ -859,7 +932,7 @@ async function processPendingReports() {
     const reported = getReportedList();
 
     for (const p of pending) {
-      // 不正なデータ構造はスキップ
+      // 送信待ち報告データの構造検証（全体停止の防止）
       if (!p || typeof p.report_id !== 'string' || typeof p.question_id !== 'string') continue;
       
       const controller = new AbortController();
@@ -883,7 +956,7 @@ async function processPendingReports() {
       }
     }
     
-    // 最新のキューから成功分だけを正確に削除して保存
+    // 最新のキューから成功分だけを正確に削除して保存 (重複無限ループ防止)
     try {
       localStorage.setItem(STORAGE_REPORTED, JSON.stringify(reported));
       let currentPending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS) || "[]");
@@ -1013,7 +1086,10 @@ function renderHome() {
 }
 
 function showView(name) {
-  previousViewName = ["home", "quiz", "result"].find(v => !document.getElementById(`view-${v}`).classList.contains("hidden")) || "home";
+  // 検索画面以外への遷移時、その画面名を記憶 (復帰用)
+  if (name !== 'search') {
+    previousViewName = name;
+  }
   
   ["home", "quiz", "result"].forEach(v => {
     const el = document.getElementById(`view-${v}`);
@@ -1145,12 +1221,12 @@ function submitAnswer(userChoice) {
     progress[cur.id] = { streak: 0 };
   }
 
+  // クイズの結果集計不整合解消（初回にかかわらず一度でもミスしたら記録）
   if (isCor) {
     if (isFirst) session.firstTryCorrect++;
     progress[cur.id].streak += 1;
   } else {
-    progress[cur.id].streak = 0;
-    // 初回にかかわらず一度でもミスしたら記録する（結果画面で漏れなく表示するため）
+    progress[cur.id].streak = 0; // いかなる条件でもミスしたらリセット
     session.missedThisSession.set(cur.id, cur);
   }
   saveProgress();
@@ -1248,18 +1324,18 @@ function finishQuiz() {
 function quitQuiz() {
   clearQuizTimer();
   session = null;
-  showView("home"); // RenderHomeは開く際に実行される
+  showView("home");
   renderHome();
 }
 
 // ==========================================
-// 8. 操作イベント (Pointer Events)
+// 8. 操作イベント (Pointer Events化による競合防止)
 // ==========================================
 const flashCard = document.getElementById("flash-card");
+let startX = 0, currentX = 0, isDragging = false;
 
 function onDragStart(e) {
   if (!session || !session.current) return;
-  // 背景でのスクロール操作等は阻止しないが、要素上のアクションとしては捕捉
   isDragging = true; 
   startX = e.clientX; 
   currentX = 0; 
@@ -1298,6 +1374,7 @@ function onDragCancel(e) {
   if(e) flashCard.releasePointerCapture(e.pointerId);
 }
 
+// タッチ・マウス操作の競合をPointer Eventsで根本解決
 flashCard.addEventListener("pointerdown", onDragStart, { passive: true });
 flashCard.addEventListener("pointermove", onDragMove, { passive: true });
 flashCard.addEventListener("pointerup", onDragEnd);
@@ -1320,7 +1397,8 @@ document.addEventListener("keydown", e => {
 
   const quizView = document.getElementById("view-quiz");
   if (quizView && quizView.classList.contains("hidden")) return;
-  if (!session) return;
+  if (!session || !session.current) return;
+  
   if (!session.awaitingNext) {
     if (e.key === "ArrowRight") { e.preventDefault(); submitAnswer(true); }
     if (e.key === "ArrowLeft") { e.preventDefault(); submitAnswer(false); }
@@ -1331,11 +1409,13 @@ document.addEventListener("keydown", e => {
   }
 });
 
+// モード選択ボタンのイベント発火
 document.getElementById("start-normal").onclick = () => startQuiz("全問出題 (通常)", ALL_QUESTIONS, false, "normal");
 document.getElementById("start-quick10").onclick = () => startQuiz("サクッとテスト", shuffle(ALL_QUESTIONS).slice(0, 10), false, "quick10");
 document.getElementById("start-endless").onclick = () => startQuiz("エンドレス特訓", shuffle(ALL_QUESTIONS), true, "endless");
 document.getElementById("start-weak").onclick = () => startQuiz("うろ覚え特訓", shuffle(ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect")), true, "weakness");
 
+// 効果音設定の永続化保存
 document.getElementById("btn-sound").onclick = (e) => {
   soundEnabled = !soundEnabled; 
   e.target.textContent = soundEnabled ? "🔊 音ON" : "🔇 音OFF";
@@ -1447,6 +1527,7 @@ function trapFocus(e) {
   }
 }
 
+let searchTimeout = null;
 let lastSearchVal = "";
 function handleSearchInput(e) {
   const val = e.target.value;
@@ -1454,7 +1535,7 @@ function handleSearchInput(e) {
   
   if (searchTimeout) clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    // 実際に有効な検索文字列が更新された場合のみGA4へ送信
+    // 実際に有効な検索文字列が入力完了（変更）された場合のみGA4へ送信
     const trimmed = val.trim();
     if (trimmed.length > 0 && trimmed !== lastSearchVal) {
       lastSearchVal = trimmed;
@@ -1470,7 +1551,7 @@ function openBrowser() {
   modal.classList.remove("hidden");
   shell.setAttribute("aria-hidden", "true");
   shell.setAttribute("inert", ""); 
-  document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden"; // 背景スクロール防止
   document.getElementById("browser-search").focus();
   modal.addEventListener('keydown', trapFocus);
   
@@ -1482,7 +1563,7 @@ function closeBrowser() {
   modal.classList.add("hidden");
   shell.removeAttribute("aria-hidden");
   shell.removeAttribute("inert");
-  document.body.style.overflow = "";
+  document.body.style.overflow = ""; // 背景スクロール復帰
   modal.removeEventListener('keydown', trapFocus);
   if (lastFocusedElement) lastFocusedElement.focus();
   
