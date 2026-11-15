@@ -1123,12 +1123,22 @@ function showView(name) {
     previousViewName = name;
   }
   
+  let viewChanged = false;
   ["home", "quiz", "result"].forEach(v => {
     const el = document.getElementById(`view-${v}`);
-    if (el) el.classList.toggle("hidden", v !== name);
+    if (el) {
+      const wasHidden = el.classList.contains("hidden");
+      const shouldBeHidden = (v !== name);
+      if (wasHidden !== shouldBeHidden) viewChanged = true;
+      el.classList.toggle("hidden", shouldBeHidden);
+    }
   });
   
   if (name !== 'search') {
+    if (viewChanged) {
+      // 画面切り替え時に必ずトップにスクロール（ヘッダー食い込み防止）
+      window.scrollTo(0, 0);
+    }
     trackGA4('app_screen_view', { screen_name: name });
   }
 }
@@ -1237,7 +1247,9 @@ function renderCurrentCard() {
   if(hint) hint.innerHTML = '<span>← 左スワイプで「×」</span><span>右スワイプで「〇」 →</span>';
   
   updateReportButtonState();
-  card.focus();
+  
+  // フォーカスによるブラウザの自動スクロールを防止
+  card.focus({ preventScroll: true });
 }
 
 function submitAnswer(userChoice) {
@@ -1294,7 +1306,7 @@ function submitAnswer(userChoice) {
     
     document.getElementById("feedback-box").classList.remove("hidden");
     updateReportButtonState();
-    document.getElementById("btn-next").focus();
+    document.getElementById("btn-next").focus({ preventScroll: true });
     
     trackGA4('explanation_view', { source: 'quiz' });
   }
@@ -1358,7 +1370,7 @@ function finishQuiz() {
 function quitQuiz() {
   clearQuizTimer();
   session = null;
-  showView("home"); // RenderHomeは開く際に実行される
+  showView("home"); 
   renderHome();
 }
 
@@ -1370,12 +1382,11 @@ let startX = 0, currentX = 0, isDragging = false;
 
 function onDragStart(e) {
   if (!session || !session.current) return;
-  // 背景でのスクロール操作等は阻止しないが、要素上のアクションとしては捕捉
   isDragging = true; 
   startX = e.clientX; 
   currentX = 0; 
   flashCard.classList.add("dragging");
-  flashCard.setPointerCapture(e.pointerId);
+  if(e.pointerId) flashCard.setPointerCapture(e.pointerId);
 }
 function onDragMove(e) {
   if (!isDragging) return;
@@ -1390,7 +1401,7 @@ function onDragEnd(e) {
   }
   isDragging = false; 
   flashCard.classList.remove("dragging");
-  flashCard.releasePointerCapture(e.pointerId);
+  if(e && e.pointerId) flashCard.releasePointerCapture(e.pointerId);
   
   if (!session.awaitingNext) {
     if (currentX > 85) submitAnswer(true);
@@ -1406,14 +1417,25 @@ function onDragCancel(e) {
   isDragging = false; 
   flashCard.classList.remove("dragging");
   resetCardPosition();
-  if(e) flashCard.releasePointerCapture(e.pointerId);
+  if(e && e.pointerId) flashCard.releasePointerCapture(e.pointerId);
 }
 
 // タッチ・マウス操作の競合をPointer Eventsで根本解決
-flashCard.addEventListener("pointerdown", onDragStart, { passive: true });
-flashCard.addEventListener("pointermove", onDragMove, { passive: true });
-flashCard.addEventListener("pointerup", onDragEnd);
-flashCard.addEventListener("pointercancel", onDragCancel); 
+if (window.PointerEvent) {
+  flashCard.addEventListener("pointerdown", onDragStart, { passive: true });
+  flashCard.addEventListener("pointermove", onDragMove, { passive: true });
+  flashCard.addEventListener("pointerup", onDragEnd);
+  flashCard.addEventListener("pointercancel", onDragCancel); 
+} else {
+  // Safari等古いブラウザ向けフォールバック
+  flashCard.addEventListener("touchstart", e => onDragStart(e.touches[0]), { passive: true });
+  flashCard.addEventListener("touchmove", e => onDragMove(e.touches[0]), { passive: true });
+  flashCard.addEventListener("touchend", () => onDragEnd());
+  flashCard.addEventListener("touchcancel", () => onDragCancel());
+  flashCard.addEventListener("mousedown", onDragStart);
+  window.addEventListener("mousemove", onDragMove);
+  window.addEventListener("mouseup", onDragEnd);
+}
 
 document.getElementById("btn-ans-o").onclick = () => submitAnswer(true);
 document.getElementById("btn-ans-x").onclick = () => submitAnswer(false);
@@ -1600,11 +1622,11 @@ function closeBrowser() {
   shell.removeAttribute("inert");
   document.body.style.overflow = ""; // 背景スクロール復帰
   modal.removeEventListener('keydown', trapFocus);
-  if (lastFocusedElement) lastFocusedElement.focus();
+  if (lastFocusedElement) lastFocusedElement.focus({ preventScroll: true });
   
   // 安全に元の画面へ戻る（以前の表示画面を記憶しておき復帰）
   const restoreView = previousViewName && previousViewName !== 'search' ? previousViewName : 'home';
-  // showView内でGA4トラッキングも行われる
+  // showView内でGA4トラッキングと最上部スクロールが行われる
   showView(restoreView);
 }
 
