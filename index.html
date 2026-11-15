@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>シン・超速！危険物ちゃんねる 乙４フラッシュ</title>
-<!-- ★修正箇所：Google tag (gtag.js) のIDを G-HL97ZV9YEP に変更しました -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HL97ZV9YEP"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -111,7 +111,7 @@
   /* ==========================================
      トップ画面 (Main Content)
      ========================================== */
-  .home-content { padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 14px; background: var(--c-bg); flex: 1; }
+  .home-content { padding: 24px 20px 0px; display: flex; flex-direction: column; gap: 14px; background: var(--c-bg); flex: 1; }
 
   .beta-notice { background: var(--c-card); border-top: 4px solid var(--c-yellow); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
   .beta-notice-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--c-border); }
@@ -144,80 +144,87 @@
 
   .btn-reset { font-size: 11px; font-weight: 700; background: none; border: none; color: var(--c-text-sub); text-decoration: underline; cursor: pointer; padding: 10px; margin-top: 8px; }
 
-  /* 準備中ボックス */
   .coming-soon-box { background: var(--c-card); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: var(--shadow-sm); border: 1px dashed #cbd5e1; animation: fadeIn 0.3s ease; }
   .coming-soon-icon { font-size: 40px; margin-bottom: 16px; }
   .coming-soon-title { font-size: 16px; font-weight: 900; color: var(--c-navy); margin-bottom: 12px; }
   .coming-soon-desc { font-size: 12px; color: var(--c-text-sub); line-height: 1.6; font-weight: 600; }
 
+  /* フッター (プライバシーについて) */
+  .app-footer { padding: 24px 20px 40px; background: var(--c-bg); margin-top: auto; }
+  .privacy-notice { background: transparent; border-top: 1px solid var(--c-border); padding-top: 20px; text-align: center; }
+  .privacy-title { font-size: 11px; font-weight: 800; color: var(--c-text-sub); margin-bottom: 8px; }
+  .privacy-text { font-size: 10px; color: var(--c-text-sub); line-height: 1.6; text-align: left; opacity: 0.85; }
+  .privacy-text p { margin: 0 0 8px 0; }
+  .privacy-link { color: var(--c-blue); text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px; }
+
   /* ==========================================
      クイズ画面
      ========================================== */
-  #view-quiz { padding: 16px 20px; }
+  #view-quiz { padding: 12px 16px; } 
   .quiz-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-  .quit-btn { background: #fff; border: 1px solid var(--c-border); color: var(--c-text-main); border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .quit-btn { background: #fff; border: 1px solid var(--c-border); color: var(--c-text-main); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); }
   
   .progress-wrap { flex: 1; }
-  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; color: var(--c-navy); margin-bottom: 6px; letter-spacing: 0.5px; }
-  .progress-bar { height: 8px; background: rgba(49,89,217,0.1); border-radius: 999px; overflow: hidden; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; color: var(--c-navy); margin-bottom: 4px; letter-spacing: 0.5px; }
+  .progress-bar { height: 6px; background: rgba(49,89,217,0.1); border-radius: 999px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--c-blue); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-  .card-stage { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 20px; position: relative; min-height: 320px; user-select: none; touch-action: pan-y; perspective: 1000px; }
-  .flash-card { width: 100%; background: var(--c-card); border-radius: 24px; padding: 24px; box-shadow: var(--shadow-md); border: 2px solid transparent; position: relative; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s; cursor: grab; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+  .card-stage { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 8px; position: relative; min-height: auto; user-select: none; touch-action: pan-y; perspective: 1000px; }
+  .flash-card { width: 100%; background: var(--c-card); border-radius: 20px; padding: 20px 16px; box-shadow: var(--shadow-md); border: 2px solid transparent; position: relative; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s; cursor: grab; min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
   .flash-card.dragging { transition: none; cursor: grabbing; box-shadow: var(--shadow-lg); }
   
   .flash-card.correct-flash { border-color: var(--c-correct); background: var(--c-correct-bg); }
   .flash-card.wrong-flash { border-color: var(--c-incorrect); background: var(--c-incorrect-bg); }
 
-  .card-badges { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .badge-tag { font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 8px; background: rgba(49,89,217,0.08); color: var(--c-blue); border: 1px solid rgba(49,89,217,0.1); }
-  .badge-revenge { background: var(--c-pink); color: #fff; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 8px; }
+  .card-badges { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .badge-tag { font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 6px; background: rgba(49,89,217,0.08); color: var(--c-blue); border: 1px solid rgba(49,89,217,0.1); }
+  .badge-revenge { background: var(--c-pink); color: #fff; font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
   
-  .q-statement { font-size: 19px; font-weight: 900; line-height: 1.6; color: var(--c-navy); margin: auto 0; word-break: break-word; letter-spacing: 0.2px; position: relative; z-index: 2; }
-  .swipe-hint { display: flex; justify-content: space-between; font-size: 11px; color: var(--c-text-sub); font-weight: 800; margin-top: 20px; border-top: 1px dashed var(--c-border); padding-top: 12px; }
+  .q-statement { font-size: 17px; font-weight: 900; line-height: 1.5; color: var(--c-navy); margin: auto 0; word-break: break-word; letter-spacing: 0.2px; position: relative; z-index: 2; }
+  .swipe-hint { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--c-text-sub); font-weight: 800; margin-top: 12px; border-top: 1px dashed var(--c-border); padding-top: 8px; }
   
   .card-overlay-correct { position: absolute; inset: 0; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 10; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
   .card-overlay-correct.show { opacity: 1; }
-  .card-overlay-text { font-size: 40px; font-weight: 900; color: var(--c-correct); letter-spacing: 4px; transform: scale(0.8); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .card-overlay-text { font-size: 36px; font-weight: 900; color: var(--c-correct); letter-spacing: 4px; transform: scale(0.8); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .card-overlay-correct.show .card-overlay-text { transform: scale(1); }
 
-  .ox-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 12px; margin-top: 12px; }
-  .ox-btn { border: 2px solid transparent; border-radius: 20px; padding: 18px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: var(--shadow-sm); transition: all 0.15s; position: relative; overflow: hidden; }
+  .ox-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 0; margin-top: 12px; }
+  .ox-btn { border: 2px solid transparent; border-radius: 16px; padding: 14px 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: var(--shadow-sm); transition: all 0.15s; position: relative; overflow: hidden; }
   .ox-btn:active { transform: scale(0.96); box-shadow: none; }
-  .ox-btn span:first-child { font-size: 32px; font-weight: 900; line-height: 1; }
-  .ox-sub { font-size: 12px; font-weight: 900; letter-spacing: 0.5px; }
+  .ox-btn span:first-child { font-size: 28px; font-weight: 900; line-height: 1; }
+  .ox-sub { font-size: 11px; font-weight: 900; letter-spacing: 0.5px; }
   
-  .btn-o { background: var(--c-blue); color: #fff; box-shadow: 0 8px 20px rgba(49,89,217,0.25); }
+  .btn-o { background: var(--c-blue); color: #fff; box-shadow: 0 6px 16px rgba(49,89,217,0.25); }
   .btn-o:hover { background: #284ac4; }
   .btn-x { background: #fff; color: var(--c-text-sub); border-color: var(--c-border); }
   .btn-x:hover { background: #f1f5f9; }
 
   /* 不正解時フィードバック */
-  .feedback-box { background: var(--c-card); border-radius: 20px; padding: 24px 20px; border: 2px solid transparent; box-shadow: var(--shadow-md); margin-top: 12px; animation: slideUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .feedback-box { background: var(--c-card); border-radius: 16px; padding: 16px; border: 2px solid transparent; box-shadow: var(--shadow-md); margin-top: 12px; animation: slideUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   
-  .fb-result-header { font-size: 28px; font-weight: 900; text-align: center; margin-bottom: 16px; letter-spacing: 2px; }
+  .fb-result-header { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 12px; letter-spacing: 2px; }
   .fb-result-header.ng { color: var(--c-incorrect); }
   
-  .fb-compare { background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--c-border); display: flex; flex-direction: column; gap: 12px; }
-  .fb-compare-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 800; }
-  .fb-compare-row .val { font-size: 16px; font-weight: 900; }
+  .fb-compare { background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--c-border); display: flex; flex-direction: column; gap: 8px; }
+  .fb-compare-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; }
+  .fb-compare-row .val { font-size: 14px; font-weight: 900; }
   .fb-compare-row .val.ok { color: var(--c-correct); }
   .fb-compare-row .val.ng { color: var(--c-incorrect); }
   
-  .fb-streak-info { text-align: center; font-size: 12px; color: var(--c-text-sub); font-weight: 800; margin-bottom: 16px; }
+  .fb-streak-info { text-align: center; font-size: 11px; color: var(--c-text-sub); font-weight: 800; margin-bottom: 12px; }
   
-  .fb-exp { font-size: 14px; line-height: 1.7; color: var(--c-text-main); font-weight: 700; margin: 0 0 20px 0; padding-top: 20px; border-top: 1px dashed var(--c-border); }
+  .fb-exp { font-size: 13px; line-height: 1.6; color: var(--c-text-main); font-weight: 700; margin: 0 0 16px 0; padding-top: 12px; border-top: 1px dashed var(--c-border); }
   
   .fb-footer { display: flex; align-items: center; justify-content: space-between; }
   .report-btn { font-size: 11px; font-weight: 800; color: var(--c-text-sub); background: transparent; border: 1px solid var(--c-border); padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
   .report-btn:hover:not(:disabled) { background: #f1f5f9; }
   .report-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   
-  .next-btn { background: var(--c-navy); color: #fff; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(16,31,101,0.2); transition: transform 0.1s; }
+  .next-btn { background: var(--c-navy); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(16,31,101,0.2); transition: transform 0.1s; }
   .next-btn:active { transform: scale(0.96); }
 
-  .report-badge { background: #fef2f2; color: #b91c1c; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; border: 1px solid #fecaca; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 4px; }
+  .report-badge { background: #fef2f2; color: #b91c1c; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; border: 1px solid #fecaca; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; }
   .report-badge.resolved { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
   .report-badge.ok { background: #f8fafc; color: var(--c-text-sub); border-color: var(--c-border); }
 
@@ -474,6 +481,19 @@
       <button class="res-btn-secondary" id="btn-back-home">🏠 ホーム画面へ戻る</button>
     </div>
   </main>
+
+  <!-- フッター (プライバシーについて) -->
+  <footer class="app-footer">
+    <div class="privacy-notice">
+      <div class="privacy-title">プライバシーについて</div>
+      <div class="privacy-text">
+        <p>本アプリでは、サービスの改善や利用状況の把握を目的として、Google Analytics 4（GA4）を利用しています。</p>
+        <p>アクセス数や画面・機能の利用状況などを収集・分析します。個別の問題への回答内容や学習履歴、アンケートの回答内容をアクセス解析に送信することはありません。</p>
+        <p>収集されたデータはGoogleのサービスを通じて取り扱われます。詳しくはGoogleのプライバシーポリシーをご確認ください。</p>
+        <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener noreferrer" class="privacy-link">Googleプライバシーポリシー</a>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <div class="modal-backdrop hidden" id="modal-browser" role="dialog" aria-modal="true" aria-labelledby="browser-title">
@@ -658,7 +678,7 @@ async function initApp() {
   processPendingReports();
   loadingOverlay.classList.add("hidden");
   renderHome();
-  showView("home"); // Init表示用
+  showView("home"); 
 }
 
 function showToast(msg) {
