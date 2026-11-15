@@ -113,21 +113,34 @@
      ========================================== */
   .home-content { padding: 24px 20px 0px; display: flex; flex-direction: column; gap: 14px; background: var(--c-bg); flex: 1; }
 
+  /* β版お知らせ (アコーディオン式コンパクト化) */
   .beta-notice { background: var(--c-card); border-top: 4px solid var(--c-yellow); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
-  .beta-notice-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--c-border); }
+  .beta-notice-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--c-border); }
   .beta-badge { background: var(--c-yellow); color: var(--c-navy); font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; }
   .beta-title { font-size: 14px; font-weight: 900; color: var(--c-navy); }
   .beta-text { font-size: 11.5px; color: var(--c-text-main); line-height: 1.6; font-weight: 600; }
   .beta-text p { margin: 0 0 8px 0; }
   .beta-text ul { margin: 0 0 12px 0; padding-left: 20px; color: var(--c-text-sub); }
   .beta-text li { margin-bottom: 4px; }
+  
+  .beta-details-toggle {
+    background: none; border: none; color: var(--c-blue); font-size: 11px; font-weight: 800;
+    cursor: pointer; padding: 4px 8px; margin: 0 0 12px -8px; text-decoration: underline; outline: none;
+  }
+  .beta-details-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease; opacity: 0;
+  }
+  .beta-details-content.open {
+    max-height: 600px; opacity: 1; padding-bottom: 8px;
+  }
+  
   .beta-highlight { text-align: center; font-size: 13px; font-weight: 900; color: var(--c-navy); margin: 16px 0 12px; padding: 10px; background: rgba(49,89,217,0.05); border-radius: 8px; border: 1px solid rgba(49,89,217,0.1); }
-  .beta-survey-btn { display: block; text-align: center; background: var(--c-yellow); color: var(--c-navy); font-size: 14px; font-weight: 900; text-decoration: none; padding: 14px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,216,61,0.3); margin-bottom: 16px; transition: transform 0.1s; }
+  .beta-survey-btn { display: block; text-align: center; background: var(--c-yellow); color: var(--c-navy); font-size: 14px; font-weight: 900; text-decoration: none; padding: 14px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,216,61,0.3); margin-bottom: 12px; transition: transform 0.1s; }
   .beta-survey-btn:active { transform: scale(0.98); }
-  .beta-text .beta-sub-text { font-size: 10.5px; color: var(--c-text-sub); line-height: 1.5; margin: 0; padding-top: 12px; border-top: 1px dashed var(--c-border); }
+  .beta-sub-text { font-size: 10px; color: var(--c-text-sub); line-height: 1.5; margin: 0; }
 
   /* ------------------------------------------
-     モード選択ボタン (UI改善・開始ボタン統合版)
+     モード選択ボタン
      ------------------------------------------ */
   .mode-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   
@@ -140,7 +153,6 @@
     position: relative; overflow: hidden; 
   }
   
-  /* ホバー・フォーカス時の視覚効果 */
   @media (hover: hover) {
     .mode-btn:hover:not(:disabled) {
       transform: translateY(-2px);
@@ -152,14 +164,12 @@
     border-color: var(--c-blue);
     box-shadow: 0 0 0 3px rgba(49, 89, 217, 0.2);
   }
-  /* クリック時の押し込み感 */
   .mode-btn:active:not(:disabled) { 
     transform: translateY(1px); 
     box-shadow: var(--shadow-sm); 
   }
   .mode-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   
-  /* 特殊モード (サクッとテスト) */
   .mode-btn.primary-mode { 
     background: var(--c-navy); color: #fff; border: none; 
     box-shadow: 0 8px 20px rgba(16,31,101,0.2); 
@@ -181,7 +191,6 @@
   .primary-mode .pill-count { background: var(--c-yellow); color: var(--c-navy); }
   .mode-btn:not(.primary-mode) .pill-count { background: var(--c-bg); color: var(--c-blue); border: 1px solid rgba(49,89,217,0.2); }
 
-  /* 内包される「問題を始める」疑似ボタン */
   .mode-action-btn {
     font-size: 12.5px; font-weight: 900; text-align: center; padding: 12px; border-radius: 10px;
     margin-top: 4px; transition: background-color 0.2s; position: relative; z-index: 1;
@@ -391,34 +400,39 @@
       <!-- タブ: 性質 (メイン内) -->
       <div id="main-content-seishitsu" class="main-tab-content">
         
-        <!-- β版公開中・アンケートの特化エリア -->
+        <!-- β版公開中・アンケートの特化エリア (コンパクト＆アコーディオン) -->
         <div class="beta-notice">
           <div class="beta-notice-header">
             <span class="beta-badge">β版公開中</span>
             <span class="beta-title">ご協力のお願い</span>
           </div>
           <div class="beta-text">
-            <p>このアプリは現在、ベータ版として公開しています。</p>
-            <p>より使いやすく、役に立つ乙4学習アプリに育てていくため、実際に使っていただいた皆さまのご意見・ご感想を募集しています。</p>
-            <p>特に、アンケートへのご協力をお願いします！</p>
-            <ul>
-              <li>使いやすかったか</li>
-              <li>問題や解説は分かりやすかったか</li>
-              <li>追加してほしい機能はあるか</li>
-              <li>使っていて困ったことはないか</li>
-            </ul>
-            <p>率直なご意見をお聞かせください。いただいた回答は、今後の改善に活用します。</p>
+            <p>アプリをより使いやすくするため、ご意見・ご感想を募集しています。</p>
             
-            <div class="beta-highlight">あなたの回答が、このアプリを育てます。</div>
+            <button id="beta-details-toggle" class="beta-details-toggle">詳細を見る ▼</button>
             
-            <a href="https://forms.gle/Ng7J8aE8H8WfmiiDA" target="_blank" rel="noopener noreferrer" class="beta-survey-btn" id="btn-survey-main">アンケートに回答する →</a>
+            <div id="beta-details-content" class="beta-details-content">
+              <p>このアプリは現在、ベータ版として公開しています。</p>
+              <p>より使いやすく、役に立つ乙4学習アプリに育てていくため、実際に使っていただいた皆さまのご意見・ご感想を募集しています。</p>
+              <p>特に、アンケートへのご協力をお願いします！</p>
+              <ul>
+                <li>使いやすかったか</li>
+                <li>問題や解説は分かりやすかったか</li>
+                <li>追加してほしい機能はあるか</li>
+                <li>使っていて困ったことはないか</li>
+              </ul>
+              <p>率直なご意見をお聞かせください。いただいた回答は、今後の改善に活用します。</p>
+              <div class="beta-highlight">あなたの回答が、このアプリを育てます。</div>
+            </div>
             
-            <p class="beta-sub-text">また、問題文・正解・解説などに誤りや分かりにくい点を見つけた場合は、問題画面の『問題を報告』からお知らせください。</p>
+            <a href="https://forms.gle/Ng7J8aE8H8WfmiiDA" target="_blank" rel="noopener noreferrer" class="beta-survey-btn" id="btn-survey-main">アンケートに回答する &rarr;</a>
+            
+            <p class="beta-sub-text">問題・正解・解説へのご指摘は、問題画面の『問題を報告』からお願いします。</p>
           </div>
         </div>
 
         <div class="mode-grid">
-          <!-- カード全体をbutton化し、内部に疑似ボタンを配置。イベントの二重発火を防ぐ構造 -->
+          <!-- 各モードがクリック可能かつ、内部にボタン風のUIを持つ -->
           <button class="mode-btn normal-mode" id="start-normal" data-mode="normal">
             <div class="mode-title"><span>📖 全問出題 (通常モード)</span><span class="pill-count" id="normal-count">0問</span></div>
             <div class="mode-desc">全問題を順番に出題。間違えてもループしません。</div>
@@ -808,6 +822,24 @@ async function initApp() {
     if (el) el.classList.toggle("hidden", v !== "home");
   });
   trackGA4('app_screen_view', { screen_name: "home" });
+  
+  // アコーディオンのセットアップ
+  setupBetaAccordion();
+}
+
+function setupBetaAccordion() {
+  const toggleBtn = document.getElementById('beta-details-toggle');
+  const content = document.getElementById('beta-details-content');
+  if (toggleBtn && content) {
+    toggleBtn.addEventListener('click', () => {
+      content.classList.toggle('open');
+      if (content.classList.contains('open')) {
+        toggleBtn.textContent = '閉じる ▲';
+      } else {
+        toggleBtn.textContent = '詳細を見る ▼';
+      }
+    });
+  }
 }
 
 // 連続表示時におけるタイマー重複・競合の確実な排除
@@ -1135,7 +1167,7 @@ function startQuiz(modeName, questionList, loopUntilMastered, modeKey) {
     modeName, loopUntilMastered, initialTotal: uniqueCount,
     modeKey: modeKey || 'retry',
     queue: questionList.map(q => ({ ...q, isRevenge: false })),
-    firstTryCorrect: 0, seenThisSession: new Set(),
+    completedCount: 0, firstTryCorrect: 0, seenThisSession: new Set(),
     missedThisSession: new Map(), startTime: Date.now(),
     awaitingNext: false, current: null, autoNextTimer: null
   };
@@ -1237,6 +1269,8 @@ function submitAnswer(userChoice) {
 
   if (session.loopUntilMastered) {
     if (getStatus(cur.id) !== "perfect") session.queue.push({ ...cur, isRevenge: true });
+  } else {
+    session.completedCount++;
   }
 
   const ox = document.getElementById("ox-controls");
@@ -1324,7 +1358,7 @@ function finishQuiz() {
 function quitQuiz() {
   clearQuizTimer();
   session = null;
-  showView("home");
+  showView("home"); // RenderHomeは開く際に実行される
   renderHome();
 }
 
@@ -1336,6 +1370,7 @@ let startX = 0, currentX = 0, isDragging = false;
 
 function onDragStart(e) {
   if (!session || !session.current) return;
+  // 背景でのスクロール操作等は阻止しないが、要素上のアクションとしては捕捉
   isDragging = true; 
   startX = e.clientX; 
   currentX = 0; 
