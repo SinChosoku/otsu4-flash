@@ -28,6 +28,9 @@
     --shadow-lg: 0 20px 30px -10px rgba(16, 31, 101, 0.15);
   }
 
+  /* ==========================================
+     基本設定
+     ========================================== */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
@@ -41,14 +44,15 @@
   .c-navy { color: var(--c-navy); }
   .c-blue { color: var(--c-blue); }
 
-  /* ヘッダー */
+  /* ==========================================
+     ヘッダー
+     ========================================== */
   header {
     background: var(--c-navy); color: #fff; padding: 14px 20px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 20; box-shadow: 0 4px 12px rgba(16, 31, 101, 0.15);
   }
   .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 15px; letter-spacing: 0.5px; }
-  .brand-badge { background: var(--c-yellow); color: var(--c-navy); font-size: 11px; padding: 3px 8px; border-radius: 999px; font-weight: 900; }
   .header-actions { display: flex; gap: 8px; }
   .icon-btn {
     background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px;
@@ -56,7 +60,9 @@
   }
   .icon-btn:hover { background: rgba(255,255,255,0.2); }
 
-  /* ローディング & トースト */
+  /* ==========================================
+     ローディング & トースト
+     ========================================== */
   #loading-overlay { position: fixed; inset: 0; background: rgba(247,248,252,0.95); z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; }
   .spinner { width: 44px; height: 44px; border: 4px solid var(--c-border); border-top: 4px solid var(--c-blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -66,15 +72,24 @@
 
   main { flex: 1; display: flex; flex-direction: column; }
 
-  /* トップ画面 */
+  /* ==========================================
+     トップ画面 (Hero Area)
+     ========================================== */
   .hero-container { background: var(--c-navy); color: #fff; padding: 24px 20px 32px; position: relative; overflow: hidden; border-radius: 0 0 24px 24px; box-shadow: var(--shadow-md); margin-bottom: -16px; z-index: 10; }
   .hero-container::before { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 500px; background: linear-gradient(135deg, var(--c-blue) 0%, transparent 80%); transform: rotate(35deg); opacity: 0.4; pointer-events: none; }
   .hero-container::after { content: ''; position: absolute; bottom: -20%; left: -10%; width: 150px; height: 2px; background: var(--c-pink); transform: rotate(-25deg); opacity: 0.8; pointer-events: none; }
   
-  .hero-title { font-size: 22px; font-weight: 900; margin: 0 0 8px 0; line-height: 1.3; position: relative; z-index: 1; }
-  .hero-subtitle { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 20px; position: relative; z-index: 1; }
+  .hero-title { font-size: 24px; font-weight: 900; margin: 0 0 8px 0; line-height: 1.3; position: relative; z-index: 1; letter-spacing: 0.5px; }
+  .hero-subtitle { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 24px; position: relative; z-index: 1; }
   
-  .hero-stats { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1; }
+  /* タブUI */
+  .subject-tabs { display: flex; background: rgba(255,255,255,0.1); border-radius: 999px; padding: 4px; margin-bottom: 24px; position: relative; z-index: 1; }
+  .subject-tab { flex: 1; background: transparent; border: none; color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 800; padding: 10px 0; border-radius: 999px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+  .subject-tab.active { background: var(--c-yellow); color: var(--c-navy); }
+
+  /* 進捗スタッツ（性質タブのみ表示） */
+  .hero-stats { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .stat-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: #fff; }
   .stacked-bar { height: 8px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; display: flex; margin-bottom: 12px; }
   .bar-seg-perfect { background: var(--c-yellow); transition: width 0.4s ease-out; }
@@ -85,6 +100,9 @@
   .stat-val { font-size: 18px; font-weight: 900; }
   .stat-lbl { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; margin-top: 2px; }
 
+  /* ==========================================
+     トップ画面 (Main Content)
+     ========================================== */
   .home-content { padding: 32px 20px 20px; display: flex; flex-direction: column; gap: 16px; background: var(--c-bg); flex: 1; }
 
   .beta-notice { background: var(--c-card); border-left: 4px solid var(--c-yellow); border-radius: 12px; padding: 14px; box-shadow: var(--shadow-sm); }
@@ -111,7 +129,15 @@
 
   .btn-reset { font-size: 11px; font-weight: 700; background: none; border: none; color: var(--c-text-sub); text-decoration: underline; cursor: pointer; padding: 10px; margin-top: 8px; }
 
-  /* クイズ画面 */
+  /* 準備中ボックス */
+  .coming-soon-box { background: var(--c-card); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: var(--shadow-sm); border: 1px dashed #cbd5e1; animation: fadeIn 0.3s ease; }
+  .coming-soon-icon { font-size: 40px; margin-bottom: 16px; }
+  .coming-soon-title { font-size: 16px; font-weight: 900; color: var(--c-navy); margin-bottom: 12px; }
+  .coming-soon-desc { font-size: 12px; color: var(--c-text-sub); line-height: 1.6; font-weight: 600; }
+
+  /* ==========================================
+     クイズ画面
+     ========================================== */
   #view-quiz { padding: 16px 20px; }
   .quiz-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
   .quit-btn { background: #fff; border: 1px solid var(--c-border); color: var(--c-text-main); border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); }
@@ -125,7 +151,6 @@
   .flash-card { width: 100%; background: var(--c-card); border-radius: 24px; padding: 24px; box-shadow: var(--shadow-md); border: 2px solid transparent; position: relative; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s; cursor: grab; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
   .flash-card.dragging { transition: none; cursor: grabbing; box-shadow: var(--shadow-lg); }
   
-  /* 正解時の枠線と背景は維持 (回答前はニュートラル) */
   .flash-card.correct-flash { border-color: var(--c-correct); background: var(--c-correct-bg); }
   .flash-card.wrong-flash { border-color: var(--c-incorrect); background: var(--c-incorrect-bg); }
 
@@ -136,13 +161,11 @@
   .q-statement { font-size: 19px; font-weight: 900; line-height: 1.6; color: var(--c-navy); margin: auto 0; word-break: break-word; letter-spacing: 0.2px; position: relative; z-index: 2; }
   .swipe-hint { display: flex; justify-content: space-between; font-size: 11px; color: var(--c-text-sub); font-weight: 800; margin-top: 20px; border-top: 1px dashed var(--c-border); padding-top: 12px; }
   
-  /* カード中央の正解オーバーレイ (スタンプの代わり) */
   .card-overlay-correct { position: absolute; inset: 0; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 10; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
   .card-overlay-correct.show { opacity: 1; }
   .card-overlay-text { font-size: 40px; font-weight: 900; color: var(--c-correct); letter-spacing: 4px; transform: scale(0.8); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .card-overlay-correct.show .card-overlay-text { transform: scale(1); }
 
-  /* 回答ボタン */
   .ox-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 12px; margin-top: 12px; }
   .ox-btn { border: 2px solid transparent; border-radius: 20px; padding: 18px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: var(--shadow-sm); transition: all 0.15s; position: relative; overflow: hidden; }
   .ox-btn:active { transform: scale(0.96); box-shadow: none; }
@@ -154,7 +177,7 @@
   .btn-x { background: #fff; color: var(--c-text-sub); border-color: var(--c-border); }
   .btn-x:hover { background: #f1f5f9; }
 
-  /* フィードバック (新デザイン) */
+  /* 不正解時フィードバック */
   .feedback-box { background: var(--c-card); border-radius: 20px; padding: 24px 20px; border: 2px solid transparent; box-shadow: var(--shadow-md); margin-top: 12px; animation: slideUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   
@@ -183,7 +206,9 @@
   .report-badge.resolved { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
   .report-badge.ok { background: #f8fafc; color: var(--c-text-sub); border-color: var(--c-border); }
 
-  /* 結果画面 */
+  /* ==========================================
+     結果画面
+     ========================================== */
   #view-result { background: var(--c-navy); color: #fff; min-height: 100dvh; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
   .result-hero { text-align: center; padding: 40px 20px; background: transparent; border: none; box-shadow: none; }
   .result-title { font-size: 24px; font-weight: 900; margin: 0 0 12px 0; color: #fff; }
@@ -199,7 +224,9 @@
   .res-btn-primary { background: var(--c-yellow); color: var(--c-navy); border: none; border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 900; width: 100%; box-shadow: 0 8px 20px rgba(255,216,61,0.2); margin-bottom: 12px; cursor: pointer; }
   .res-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 900; width: 100%; cursor: pointer; }
 
-  /* 検索モーダル */
+  /* ==========================================
+     検索モーダル
+     ========================================== */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(16,31,101,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; justify-content: center; align-items: flex-end; }
   .modal-sheet { width: 100%; max-width: 480px; background: var(--c-bg); border-radius: 24px 24px 0 0; padding: 24px 20px; max-height: 90dvh; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -10px 40px rgba(16,31,101,0.2); }
   .search-input { width: 100%; padding: 14px 16px; border: 2px solid var(--c-border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--c-text-main); outline: none; transition: border-color 0.2s; }
@@ -219,7 +246,7 @@
   <div id="toast" role="alert" aria-live="polite"></div>
 
   <header>
-    <div class="brand">🔥 シン・超速！危険物ちゃんねる</div>
+    <div class="brand">🔥 シン・超速！乙４フラッシュ</div>
     <div class="header-actions">
       <button class="icon-btn" id="btn-browse" aria-label="一覧検索を開く" aria-haspopup="dialog">一覧検索</button>
       <button class="icon-btn" id="btn-sound" aria-label="音声を切り替える">🔊 音ON</button>
@@ -227,70 +254,109 @@
   </header>
 
   <main id="view-home" class="hidden">
+    <!-- ヒーローエリア -->
     <div class="hero-container">
-      <h1 class="hero-title">乙種第4類<br>〇×フラッシュ</h1>
+      <h1 class="hero-title">シン・超速！<br>乙４フラッシュ</h1>
       <div class="hero-subtitle">隙間時間で、最速合格へ。</div>
       
-      <div class="hero-stats">
-        <div class="stat-header">
-          <span>全体の習熟度</span>
-          <span id="overall-pct">0% 完了</span>
-        </div>
-        <div class="stacked-bar">
-          <div class="bar-seg-perfect" id="bar-perfect" style="width: 0%"></div>
-          <div class="bar-seg-learning" id="bar-learning" style="width: 0%"></div>
-        </div>
-        <div class="stat-grid">
-          <div class="stat-item">
-            <div class="stat-val c-yellow" id="stat-perfect">0</div>
-            <div class="stat-lbl">完璧<br>(3連続〇)</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-val" id="stat-learning">0</div>
-            <div class="stat-lbl">うろ覚え</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-val" style="color:rgba(255,255,255,0.5);" id="stat-unseen">0</div>
-            <div class="stat-lbl">未学習</div>
-          </div>
-        </div>
-        <div id="sync-info" style="font-size:10px; color:rgba(255,255,255,0.6); text-align:right; margin-top:8px;"></div>
+      <!-- 科目タブ -->
+      <div class="subject-tabs">
+        <button class="subject-tab active" data-tab="seishitsu">性質・消火</button>
+        <button class="subject-tab" data-tab="hourei">法 令</button>
+        <button class="subject-tab" data-tab="butsuri">物理・化学</button>
       </div>
+
+      <!-- タブ: 性質 (ヒーロー内) -->
+      <div id="hero-content-seishitsu" class="hero-tab-content">
+        <div class="hero-stats">
+          <div class="stat-header">
+            <span>全体の習熟度</span>
+            <span id="overall-pct">0% 完了</span>
+          </div>
+          <div class="stacked-bar">
+            <div class="bar-seg-perfect" id="bar-perfect" style="width: 0%"></div>
+            <div class="bar-seg-learning" id="bar-learning" style="width: 0%"></div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-item">
+              <div class="stat-val c-yellow" id="stat-perfect">0</div>
+              <div class="stat-lbl">完璧<br>(3連続〇)</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" id="stat-learning">0</div>
+              <div class="stat-lbl">うろ覚え</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" style="color:rgba(255,255,255,0.5);" id="stat-unseen">0</div>
+              <div class="stat-lbl">未学習</div>
+            </div>
+          </div>
+          <div id="sync-info" style="font-size:10px; color:rgba(255,255,255,0.6); text-align:right; margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <!-- タブ: 法令・物理 (ヒーロー内カラ) -->
+      <div id="hero-content-hourei" class="hero-tab-content hidden"></div>
+      <div id="hero-content-butsuri" class="hero-tab-content hidden"></div>
     </div>
 
+    <!-- メインコンテンツ -->
     <div class="home-content">
-      <div class="beta-notice">
-        <div class="beta-notice-header">
-          <span class="beta-badge">β版公開中</span>
-          <span class="beta-title">ご協力のお願い</span>
+      
+      <!-- タブ: 性質 (メイン内) -->
+      <div id="main-content-seishitsu" class="main-tab-content">
+        <div class="beta-notice">
+          <div class="beta-notice-header">
+            <span class="beta-badge">β版公開中</span>
+            <span class="beta-title">ご協力のお願い</span>
+          </div>
+          <div class="beta-text">
+            問題文や解説に分かりにくい点が見つかる可能性があります。「この問題、間違っているかも？」と感じた場合は、問題画面の「問題を報告」ボタンからお知らせください。より使いやすいアプリへ改善していきます。
+          </div>
         </div>
-        <div class="beta-text">
-          問題文や解説に分かりにくい点が見つかる可能性があります。「この問題、間違っているかも？」と感じた場合は、問題画面の「問題を報告」ボタンからお知らせください。より使いやすいアプリへ改善していきます。
+
+        <div class="mode-grid">
+          <button class="mode-btn normal-mode" id="start-normal">
+            <div class="mode-title"><span>📖 全問出題 (通常)</span><span class="pill-count" id="normal-count">0問</span></div>
+            <div class="mode-desc">全問題を順番に出題。間違えてもループしません。</div>
+          </button>
+          <button class="mode-btn primary-mode" id="start-quick10">
+            <div class="mode-title"><span>⚡ サクッとテスト</span><span class="pill-count" id="quick-count">10問</span></div>
+            <div class="mode-desc">ランダムに出題。隙間時間の腕試しに最適です。</div>
+          </button>
+          <button class="mode-btn hell-mode" id="start-endless">
+            <div class="mode-title"><span>🔥 エンドレス特訓</span><span class="pill-count">∞</span></div>
+            <div class="mode-desc">全問題をシャッフル。3連続正解になるまで出題し続けます。</div>
+          </button>
+          <button class="mode-btn" id="start-weak" style="border-color:var(--c-blue);">
+            <div class="mode-title"><span class="c-blue">🎯 うろ覚え特訓</span><span class="pill-count" id="weak-count">0問</span></div>
+            <div class="mode-desc">完璧ではない（未学習・うろ覚え）問題だけを集中特訓。</div>
+          </button>
+        </div>
+        
+        <div style="text-align:center;">
+          <button class="btn-reset" id="btn-reset">学習履歴をリセットする</button>
         </div>
       </div>
 
-      <div class="mode-grid">
-        <button class="mode-btn normal-mode" id="start-normal">
-          <div class="mode-title"><span>📖 全問出題 (通常)</span><span class="pill-count" id="normal-count">0問</span></div>
-          <div class="mode-desc">全問題を順番に出題。間違えてもループしません。</div>
-        </button>
-        <button class="mode-btn primary-mode" id="start-quick10">
-          <div class="mode-title"><span>⚡ サクッとテスト</span><span class="pill-count" id="quick-count">10問</span></div>
-          <div class="mode-desc">ランダムに出題。隙間時間の腕試しに最適です。</div>
-        </button>
-        <button class="mode-btn hell-mode" id="start-endless">
-          <div class="mode-title"><span>🔥 エンドレス特訓</span><span class="pill-count">∞</span></div>
-          <div class="mode-desc">全問題をシャッフル。3連続正解になるまで出題し続けます。</div>
-        </button>
-        <button class="mode-btn" id="start-weak" style="border-color:var(--c-blue);">
-          <div class="mode-title"><span class="c-blue">🎯 うろ覚え特訓</span><span class="pill-count" id="weak-count">0問</span></div>
-          <div class="mode-desc">完璧ではない（未学習・うろ覚え）問題だけを集中特訓。</div>
-        </button>
+      <!-- タブ: 法令 (準備中) -->
+      <div id="main-content-hourei" class="main-tab-content hidden">
+        <div class="coming-soon-box">
+          <div class="coming-soon-icon">🛠️</div>
+          <div class="coming-soon-title">現在、問題データを準備中です</div>
+          <div class="coming-soon-desc">法令科目の問題は、今後のアップデートで追加される予定です。公開まで今しばらくお待ちください！</div>
+        </div>
       </div>
-      
-      <div style="text-align:center;">
-        <button class="btn-reset" id="btn-reset">学習履歴をリセットする</button>
+
+      <!-- タブ: 物理 (準備中) -->
+      <div id="main-content-butsuri" class="main-tab-content hidden">
+        <div class="coming-soon-box">
+          <div class="coming-soon-icon">🧪</div>
+          <div class="coming-soon-title">現在、問題データを準備中です</div>
+          <div class="coming-soon-desc">物理と化学科目の問題は、今後のアップデートで追加される予定です。公開まで今しばらくお待ちください！</div>
+        </div>
       </div>
+
     </div>
   </main>
 
@@ -323,7 +389,6 @@
       </div>
     </div>
     
-    <!-- 新デザインのフィードバックボックス (不正解時のみ表示) -->
     <div class="feedback-box hidden" id="feedback-box" role="alert" aria-live="assertive">
       <div class="fb-result-header ng">不正解</div>
       
@@ -743,7 +808,9 @@ function shuffle(arr) {
 // ==========================================
 function renderHome() {
   const total = ALL_QUESTIONS.length;
-  document.getElementById("total-badge").textContent = `全${total}問`;
+  const totalBadge = document.getElementById("total-badge");
+  if (totalBadge) totalBadge.textContent = `全${total}問`;
+  
   let perfect = 0, learning = 0, unseen = 0;
   
   ALL_QUESTIONS.forEach(q => {
@@ -786,6 +853,20 @@ function showView(name) {
   });
 }
 
+// タブ切り替えロジック
+document.querySelectorAll('.subject-tab').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.subject-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.hero-tab-content').forEach(c => c.classList.add('hidden'));
+    document.querySelectorAll('.main-tab-content').forEach(c => c.classList.add('hidden'));
+    
+    const target = e.currentTarget.getAttribute('data-tab');
+    e.currentTarget.classList.add('active');
+    document.getElementById(`hero-content-${target}`).classList.remove('hidden');
+    document.getElementById(`main-content-${target}`).classList.remove('hidden');
+  });
+});
+
 // ==========================================
 // 7. クイズ実行エンジン
 // ==========================================
@@ -825,7 +906,6 @@ function renderCurrentCard() {
   card.classList.remove("correct-flash", "wrong-flash");
   card.style.transform = ""; 
   
-  // スタンプ非表示・オーバーレイ初期化
   document.getElementById("card-overlay-correct").classList.remove("show");
   
   document.getElementById("feedback-box").classList.add("hidden");
@@ -907,11 +987,9 @@ function submitAnswer(userChoice) {
 
   if (isCor) {
     ox.classList.add("hidden");
-    // 正解時はカード上に「正解！」を表示して自動遷移
     document.getElementById("card-overlay-correct").classList.add("show");
     session.autoNextTimer = setTimeout(() => { nextCard(); }, 400);
   } else {
-    // 不正解時は新デザインの解説ボックスを表示
     ox.classList.add("hidden");
     
     document.getElementById("fb-user-ans").textContent = userChoice ? "〇 正しい" : "× 誤り";
