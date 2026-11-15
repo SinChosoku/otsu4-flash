@@ -45,18 +45,19 @@
   .c-blue { color: var(--c-blue); }
 
   /* ==========================================
-     ヘッダー
+     ヘッダー (アンケートリンク追加・スマホ対応調整)
      ========================================== */
   header {
-    background: var(--c-navy); color: #fff; padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+    background: var(--c-navy); color: #fff; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
     position: sticky; top: 0; z-index: 20; box-shadow: 0 4px 12px rgba(16, 31, 101, 0.15);
   }
-  .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 15px; letter-spacing: 0.5px; }
-  .header-actions { display: flex; gap: 8px; }
+  .brand { font-weight: 900; font-size: 11px; letter-spacing: 0px; line-height: 1.3; flex: 1; }
+  .header-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .icon-btn {
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px;
-    padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px;
+    padding: 6px 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center;
   }
   .icon-btn:hover { background: rgba(255,255,255,0.2); }
 
@@ -246,9 +247,10 @@
   <div id="toast" role="alert" aria-live="polite"></div>
 
   <header>
-    <div class="brand">🔥 シン・超速！乙４フラッシュ</div>
+    <div class="brand">🔥 シン・超速！<br>危険物ちゃんねる Presents</div>
     <div class="header-actions">
       <button class="icon-btn" id="btn-browse" aria-label="一覧検索を開く" aria-haspopup="dialog">一覧検索</button>
+      <a href="https://forms.gle/Ng7J8aE8H8WfmiiDA" target="_blank" rel="noopener noreferrer" class="icon-btn">アンケート</a>
       <button class="icon-btn" id="btn-sound" aria-label="音声を切り替える">🔊 音ON</button>
     </div>
   </header>
@@ -317,7 +319,7 @@
 
         <div class="mode-grid">
           <button class="mode-btn normal-mode" id="start-normal">
-            <div class="mode-title"><span>📖 全問出題 (通常)</span><span class="pill-count" id="normal-count">0問</span></div>
+            <div class="mode-title"><span>📖 全問出題 (通常モード)</span><span class="pill-count" id="normal-count">0問</span></div>
             <div class="mode-desc">全問題を順番に出題。間違えてもループしません。</div>
           </button>
           <button class="mode-btn primary-mode" id="start-quick10">
