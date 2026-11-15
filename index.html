@@ -400,6 +400,7 @@
     </div>
   </main>
 
+  <!-- クイズ画面 -->
   <main id="view-quiz" class="hidden">
     <div class="quiz-top">
       <button class="quit-btn" id="btn-quit" aria-label="クイズを終了してホームに戻る">← 終了</button>
@@ -412,7 +413,7 @@
     <div class="card-stage" id="card-stage">
       <div class="flash-card" id="flash-card" tabindex="0" role="region" aria-label="問題カード">
         <!-- 正解時のオーバーレイ -->
-        <div class="card-overlay-correct" id="card-overlay-correct">
+        <div class="card-overlay-correct" id="card-overlay-correct" role="alert" aria-live="assertive">
           <div class="card-overlay-text">正解！</div>
         </div>
 
@@ -429,6 +430,7 @@
       </div>
     </div>
     
+    <!-- 不正解時フィードバック -->
     <div class="feedback-box hidden" id="feedback-box" role="alert" aria-live="assertive">
       <div class="fb-result-header ng">不正解</div>
       
@@ -463,6 +465,7 @@
     </div>
   </main>
 
+  <!-- 結果画面 -->
   <main id="view-result" class="hidden" role="region" aria-label="結果画面">
     <div class="result-hero">
       <div class="result-sub" id="res-mode-name">セット完了！</div>
@@ -496,6 +499,7 @@
   </footer>
 </div>
 
+<!-- 検索モーダル -->
 <div class="modal-backdrop hidden" id="modal-browser" role="dialog" aria-modal="true" aria-labelledby="browser-title">
   <div class="modal-sheet" id="modal-sheet-content">
     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -531,33 +535,35 @@ const STORAGE_CACHE_META = "otsu4_cache_meta";
 const STORAGE_PENDING_REPORTS = "otsu4_pending_reports";
 const STORAGE_REPORTED = "otsu4_reported";
 
-let progress = {};
+// プロトタイプ汚染防止のため Object.create(null) で初期化
+let progress = Object.create(null);
 let ALL_QUESTIONS = [];
 let cacheMeta = { version: 1, lastSyncTime: null };
-let toastTimeout = null;
+
+// トーストタイマーは2つに分けて確実に管理
+let toastShowTimeout = null;
+let toastHideTimeout = null;
 
 let isProcessingPending = false;
 let reportingSet = new Set(); 
 
 let session = null;
 let soundEnabled = true, audioCtx = null;
-let lastFocusedElement = null; 
+let previousViewName = "home"; // 検索モーダル復帰用
 
 // ==========================================
 // 2. データ検証と永続化
 // ==========================================
 function isValidId(id) { return typeof id === 'string' && id.trim().length > 0; }
-function isSafeKey(key) { return key !== '__proto__' && key !== 'constructor' && key !== 'prototype'; }
 
 function validateProgress(data) {
-  const valid = {};
+  const valid = Object.create(null);
   if (!data || typeof data !== 'object' || Array.isArray(data)) return valid;
   for (const key of Object.keys(data)) {
-    if (!isSafeKey(key)) continue;
     const val = data[key];
-    if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, 'streak')) {
-      let st = Number(val.streak);
-      if (Number.isInteger(st) && st >= 0) valid[key] = { streak: st };
+    // 数値型かつ0以上の整数であることを厳密にチェック
+    if (val && typeof val === 'object' && typeof val.streak === 'number' && Number.isInteger(val.streak) && val.streak >= 0) {
+      valid[key] = { streak: val.streak };
     }
   }
   return valid;
@@ -569,13 +575,18 @@ function validateQuestionList(list) {
   const seenIds = new Set();
   for (const q of list) {
     if (!q || typeof q !== 'object') continue;
-    if (!isValidId(q.id) || seenIds.has(q.id) || !isSafeKey(q.id)) continue;
+    if (typeof q.id !== 'string') continue;
+    
+    // 重複チェック前に空白を除去
+    const normalizedId = q.id.trim();
+    if (normalizedId.length === 0 || seenIds.has(normalizedId)) continue;
+    
     if (typeof q.answer !== 'boolean' || typeof q.statement !== 'string' || q.statement.trim() === '') continue;
     
-    seenIds.add(q.id);
+    seenIds.add(normalizedId);
     valid.push({
-      id: q.id,
-      num: Number.isInteger(q.num) ? q.num : 0,
+      id: normalizedId,
+      num: (Number.isInteger(q.num) && q.num > 0) ? q.num : 0,
       category: typeof q.category === 'string' ? q.category.trim() : "",
       subject: typeof q.subject === 'string' ? q.subject.trim() : "",
       statement: q.statement.trim(),
@@ -593,17 +604,33 @@ function loadLocalData() {
   try {
     const p = localStorage.getItem(STORAGE_PROGRESS);
     if (p) progress = validateProgress(JSON.parse(p));
-  } catch (e) { progress = {}; }
+  } catch (e) { progress = Object.create(null); }
 
   try {
     const cm = localStorage.getItem(STORAGE_CACHE_META);
-    if (cm) cacheMeta = Object.assign(cacheMeta, JSON.parse(cm));
+    if (cm) {
+      const parsedCm = JSON.parse(cm);
+      if (parsedCm && typeof parsedCm === 'object') {
+        if (typeof parsedCm.version === 'number') cacheMeta.version = parsedCm.version;
+        if (typeof parsedCm.lastSyncTime === 'string') cacheMeta.lastSyncTime = parsedCm.lastSyncTime;
+      }
+    }
   } catch(e) {}
 
   try {
     const c = localStorage.getItem(STORAGE_CACHE);
     if (c) ALL_QUESTIONS = validateQuestionList(JSON.parse(c));
   } catch (e) { }
+
+  // 効果音設定の復元
+  try {
+    const s = localStorage.getItem("otsu4_sound_setting");
+    if (s !== null) {
+      soundEnabled = (s === 'true');
+      const btn = document.getElementById("btn-sound");
+      if(btn) btn.textContent = soundEnabled ? "🔊 音ON" : "🔇 音OFF";
+    }
+  } catch(e) {}
 }
 
 function saveProgress() {
@@ -626,6 +653,19 @@ function formatSyncTime(isoString) {
   return `最終同期: ${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
+// 複数タブでの履歴同期
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_PROGRESS) {
+    try {
+      const p = e.newValue ? JSON.parse(e.newValue) : {};
+      progress = validateProgress(p);
+      if (document.getElementById("view-home") && !document.getElementById("view-home").classList.contains("hidden")) {
+        renderHome();
+      }
+    } catch(err) {}
+  }
+});
+
 // ==========================================
 // 3. アプリケーション初期化
 // ==========================================
@@ -643,24 +683,34 @@ async function initApp() {
     const timeoutId = setTimeout(() => controller.abort(), 12000);
     try {
       const res = await fetch(API_URL, { method: 'GET', redirect: 'follow', signal: controller.signal });
-      clearTimeout(timeoutId);
-      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
       const json = await res.json();
+      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
       
       if (json && json.success === true && Array.isArray(json.data)) {
         const validatedData = validateQuestionList(json.data);
+        
+        if (json.data.length > 0 && validatedData.length === 0) {
+          throw new Error("データ検証エラー");
+        }
+        
+        // 0件が返された場合のキャッシュ保護
         if (validatedData.length > 0) {
           ALL_QUESTIONS = validatedData;
           saveCache();
-        } else {
-          showToast("サーバー上の公開問題が0件です。");
-          ALL_QUESTIONS = [];
+        } else if (json.data.length === 0) {
+          if (ALL_QUESTIONS.length === 0) {
+            showToast("サーバー上の公開問題が0件です。");
+            ALL_QUESTIONS = [];
+            saveCache();
+          } else {
+            // キャッシュが存在する場合は空データで上書きせず維持
+            showToast("一時的な通信エラー: キャッシュを使用します");
+          }
         }
       } else {
         throw new Error(json ? json.error : "不正なレスポンス形式");
       }
     } catch (err) {
-      clearTimeout(timeoutId);
       if (ALL_QUESTIONS.length === 0) {
         loadingText.textContent = "データ取得失敗。キャッシュなし。";
         loadingText.style.color = "var(--c-incorrect)";
@@ -672,28 +722,39 @@ async function initApp() {
       } else {
         showToast("オフライン起動: キャッシュデータを使用します");
       }
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
   processPendingReports();
   loadingOverlay.classList.add("hidden");
   renderHome();
-  showView("home"); 
+  
+  // 初期画面表示時は強制的に非表示クラスを外す
+  ["home", "quiz", "result"].forEach(v => {
+    const el = document.getElementById(`view-${v}`);
+    if (el) el.classList.toggle("hidden", v !== "home");
+  });
+  trackGA4('app_screen_view', { screen_name: "home" });
 }
 
 function showToast(msg) {
   const t = document.getElementById("toast");
-  if (toastTimeout) { clearTimeout(toastTimeout); t.classList.remove("show"); }
+  if (toastShowTimeout) clearTimeout(toastShowTimeout);
+  if (toastHideTimeout) clearTimeout(toastHideTimeout);
   
-  setTimeout(() => {
+  t.classList.remove("show");
+  
+  toastShowTimeout = setTimeout(() => {
     t.textContent = msg;
     t.classList.add("show");
-    t.setAttribute("aria-hidden", "false");
-    toastTimeout = setTimeout(() => {
+    t.removeAttribute("aria-hidden");
+    toastHideTimeout = setTimeout(() => {
       t.classList.remove("show");
       t.setAttribute("aria-hidden", "true");
     }, 3500);
-  }, 10);
+  }, 50);
 }
 
 // ==========================================
@@ -715,27 +776,38 @@ async function reportIssue(questionId) {
     updateReportButtonState();
     return;
   }
+  
+  // 送信待ちキューも確認して重複登録を防止
+  let pending = [];
+  try { 
+    pending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS)); 
+    if (!Array.isArray(pending)) pending = [];
+  } catch (e) { pending = []; }
+  
+  if (pending.find(p => p.question_id === questionId)) {
+    showToast("この問題は現在通信待機中です");
+    updateReportButtonState();
+    return;
+  }
 
   reportingSet.add(questionId);
   updateReportButtonState();
   const reportId = "req_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
   const payload = { report_id: reportId, question_id: questionId };
 
-  // GA4
   trackGA4('report_click', { source: 'quiz' });
 
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 12000);
   try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 12000);
     const res = await fetch(API_URL, {
       method: "POST", redirect: "follow",
       headers: { "Content-Type": "text/plain" },
       body: JSON.stringify(payload),
       signal: controller.signal
     });
-    clearTimeout(tid);
-    if (!res.ok) throw new Error("HTTP " + res.status);
     const result = await res.json();
+    if (!res.ok) throw new Error("HTTP " + res.status);
     
     if (result.success) {
       showToast(result.status === "duplicate" ? "報告済みとして処理されました" : "不具合報告を受け付けました");
@@ -745,9 +817,14 @@ async function reportIssue(questionId) {
       throw new Error(result.error || "Server error");
     }
   } catch (err) {
-    savePendingReport(payload);
-    showToast("通信エラー：オフライン保存しました");
+    const saved = savePendingReport(payload);
+    if (saved) {
+      showToast("通信エラー：オフライン保存しました");
+    } else {
+      showToast("エラー：保存容量不足により保存できませんでした");
+    }
   } finally {
+    clearTimeout(tid);
     reportingSet.delete(questionId);
     updateReportButtonState();
   }
@@ -761,7 +838,8 @@ function savePendingReport(payload) {
       pending.push(payload);
       localStorage.setItem(STORAGE_PENDING_REPORTS, JSON.stringify(pending));
     }
-  } catch (e) { showToast("保存容量不足"); }
+    return true;
+  } catch (e) { return false; }
 }
 
 async function processPendingReports() {
@@ -776,51 +854,70 @@ async function processPendingReports() {
   if (pending.length === 0) return;
   isProcessingPending = true;
 
-  let stillPending = [];
-  const reported = getReportedList();
+  try {
+    let successfulReportIds = new Set();
+    const reported = getReportedList();
 
-  for (const p of pending) {
-    try {
+    for (const p of pending) {
+      // 不正なデータ構造はスキップ
+      if (!p || typeof p.report_id !== 'string' || typeof p.question_id !== 'string') continue;
+      
       const controller = new AbortController();
       const tid = setTimeout(() => controller.abort(), 12000);
-      const res = await fetch(API_URL, {
-        method: "POST", redirect: "follow",
-        headers: { "Content-Type": "text/plain" }, body: JSON.stringify(p),
-        signal: controller.signal
-      });
-      clearTimeout(tid);
-      const result = await res.json();
-      if (result.success) {
-        if (!reported.includes(p.question_id)) reported.push(p.question_id);
-      } else {
-        stillPending.push(p);
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST", redirect: "follow",
+          headers: { "Content-Type": "text/plain" }, body: JSON.stringify(p),
+          signal: controller.signal
+        });
+        const result = await res.json();
+        // 成功時のみ確実に除外対象として記録
+        if (res.ok && result && result.success) {
+          if (!reported.includes(p.question_id)) reported.push(p.question_id);
+          successfulReportIds.add(p.report_id);
+        }
+      } catch (err) {
+        // タイムアウトや通信エラー時は次回再送のためキューに残す
+      } finally {
+        clearTimeout(tid);
       }
-    } catch (err) {
-      stillPending.push(p);
     }
+    
+    // 最新のキューから成功分だけを正確に削除して保存
+    try {
+      localStorage.setItem(STORAGE_REPORTED, JSON.stringify(reported));
+      let currentPending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS) || "[]");
+      if (!Array.isArray(currentPending)) currentPending = [];
+      const newPending = currentPending.filter(cp => !successfulReportIds.has(cp.report_id));
+      localStorage.setItem(STORAGE_PENDING_REPORTS, JSON.stringify(newPending));
+    } catch (e) {}
+  } finally {
+    isProcessingPending = false;
+    updateReportButtonState();
   }
-  
-  try {
-    localStorage.setItem(STORAGE_REPORTED, JSON.stringify(reported));
-    let currentPending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS) || "[]");
-    if (!Array.isArray(currentPending)) currentPending = [];
-    const mergedPending = [...stillPending];
-    currentPending.forEach(cp => {
-       if (!mergedPending.find(mp => mp.report_id === cp.report_id)) mergedPending.push(cp);
-    });
-    localStorage.setItem(STORAGE_PENDING_REPORTS, JSON.stringify(mergedPending));
-  } catch (e) {}
-  isProcessingPending = false;
 }
+
+// オンライン復帰時の再送
+window.addEventListener('online', () => {
+  processPendingReports();
+});
 
 function updateReportButtonState() {
   if (!session || !session.current) return;
   const currentQuestionId = session.current.id;
   const reportedList = getReportedList();
   
+  let pending = [];
+  try { 
+    pending = JSON.parse(localStorage.getItem(STORAGE_PENDING_REPORTS)); 
+    if (!Array.isArray(pending)) pending = [];
+  } catch (e) { pending = []; }
+  
+  const isPending = pending.find(p => p.question_id === currentQuestionId);
+  
   const btns = document.querySelectorAll(".btn-report-q");
   btns.forEach(btn => {
-    if (reportingSet.has(currentQuestionId)) {
+    if (reportingSet.has(currentQuestionId) || isPending) {
       btn.textContent = "送信中..."; btn.disabled = true;
     } else if (reportedList.includes(currentQuestionId)) {
       btn.textContent = "✓ 報告済み"; btn.disabled = true;
@@ -859,7 +956,7 @@ function playTone(isCorrect) {
 }
 
 function getStatus(id) {
-  if (!progress[id] || !Object.prototype.hasOwnProperty.call(progress[id], 'streak')) return "unseen";
+  if (!Object.prototype.hasOwnProperty.call(progress, id) || typeof progress[id].streak !== 'number') return "unseen";
   return progress[id].streak >= 3 ? "perfect" : "learning";
 }
 
@@ -916,12 +1013,16 @@ function renderHome() {
 }
 
 function showView(name) {
+  previousViewName = ["home", "quiz", "result"].find(v => !document.getElementById(`view-${v}`).classList.contains("hidden")) || "home";
+  
   ["home", "quiz", "result"].forEach(v => {
     const el = document.getElementById(`view-${v}`);
     if (el) el.classList.toggle("hidden", v !== name);
   });
-  // GA4
-  trackGA4('app_screen_view', { screen_name: name });
+  
+  if (name !== 'search') {
+    trackGA4('app_screen_view', { screen_name: name });
+  }
 }
 
 // タブ切り替えロジック
@@ -948,26 +1049,24 @@ function clearQuizTimer() {
   }
 }
 
-function startQuiz(modeName, questionList, loopUntilMastered) {
+function startQuiz(modeName, questionList, loopUntilMastered, modeKey) {
   if (!questionList || questionList.length === 0) return;
   clearQuizTimer(); 
   
   const uniqueCount = new Set(questionList.map(q => q.id)).size;
-  const modeKey = document.activeElement ? document.activeElement.getAttribute('data-mode') || 'retry' : 'retry';
   
   session = {
     modeName, loopUntilMastered, initialTotal: uniqueCount,
-    modeKey: modeKey,
+    modeKey: modeKey || 'retry',
     queue: questionList.map(q => ({ ...q, isRevenge: false })),
-    completedCount: 0, firstTryCorrect: 0, seenThisSession: new Set(),
+    firstTryCorrect: 0, seenThisSession: new Set(),
     missedThisSession: new Map(), startTime: Date.now(),
     awaitingNext: false, current: null, autoNextTimer: null
   };
   document.getElementById("quiz-mode-label").textContent = modeName;
   showView("quiz");
   
-  // GA4
-  trackGA4('study_start', { study_mode: modeKey });
+  trackGA4('study_start', { study_mode: session.modeKey });
   
   renderCurrentCard();
 }
@@ -1034,7 +1133,7 @@ function renderCurrentCard() {
 }
 
 function submitAnswer(userChoice) {
-  if (!session || session.awaitingNext) return;
+  if (!session || !session.current || session.awaitingNext) return;
   session.awaitingNext = true;
   clearQuizTimer(); 
   const cur = session.current, isCor = (userChoice === cur.answer);
@@ -1042,14 +1141,17 @@ function submitAnswer(userChoice) {
 
   const isFirst = !session.seenThisSession.has(cur.id);
   session.seenThisSession.add(cur.id);
-  if (!progress[cur.id]) progress[cur.id] = { streak: 0 };
+  if (!Object.prototype.hasOwnProperty.call(progress, cur.id)) {
+    progress[cur.id] = { streak: 0 };
+  }
 
   if (isCor) {
     if (isFirst) session.firstTryCorrect++;
     progress[cur.id].streak += 1;
   } else {
     progress[cur.id].streak = 0;
-    if (isFirst) session.missedThisSession.set(cur.id, cur);
+    // 初回にかかわらず一度でもミスしたら記録する（結果画面で漏れなく表示するため）
+    session.missedThisSession.set(cur.id, cur);
   }
   saveProgress();
 
@@ -1059,8 +1161,6 @@ function submitAnswer(userChoice) {
 
   if (session.loopUntilMastered) {
     if (getStatus(cur.id) !== "perfect") session.queue.push({ ...cur, isRevenge: true });
-  } else {
-    session.completedCount++;
   }
 
   const ox = document.getElementById("ox-controls");
@@ -1086,7 +1186,6 @@ function submitAnswer(userChoice) {
     updateReportButtonState();
     document.getElementById("btn-next").focus();
     
-    // GA4
     trackGA4('explanation_view', { source: 'quiz' });
   }
 }
@@ -1137,10 +1236,9 @@ function finishQuiz() {
       mList.appendChild(item);
     });
     
-    rBtn.onclick = () => startQuiz("間違えた問題リベンジ", shuffle(missedArr), true);
+    rBtn.onclick = () => startQuiz("間違えた問題リベンジ", shuffle(missedArr), true, 'retry');
   }
   
-  // GA4
   trackGA4('study_complete', { study_mode: session.modeKey });
   
   session = null;
@@ -1150,28 +1248,38 @@ function finishQuiz() {
 function quitQuiz() {
   clearQuizTimer();
   session = null;
+  showView("home"); // RenderHomeは開く際に実行される
   renderHome();
-  showView("home");
 }
 
 // ==========================================
-// 8. 操作イベント (Swipe & Keys)
+// 8. 操作イベント (Pointer Events)
 // ==========================================
 const flashCard = document.getElementById("flash-card");
-let startX = 0, currentX = 0, isDragging = false;
 
-function onDragStart(clientX) {
-  if (!session) return;
-  isDragging = true; startX = clientX; currentX = 0; flashCard.classList.add("dragging");
+function onDragStart(e) {
+  if (!session || !session.current) return;
+  // 背景でのスクロール操作等は阻止しないが、要素上のアクションとしては捕捉
+  isDragging = true; 
+  startX = e.clientX; 
+  currentX = 0; 
+  flashCard.classList.add("dragging");
+  flashCard.setPointerCapture(e.pointerId);
 }
-function onDragMove(clientX) {
+function onDragMove(e) {
   if (!isDragging) return;
-  currentX = clientX - startX;
+  currentX = e.clientX - startX;
   flashCard.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.04}deg)`;
 }
-function onDragEnd() {
-  if (!isDragging) return;
-  isDragging = false; flashCard.classList.remove("dragging");
+function onDragEnd(e) {
+  if (!isDragging || !session || !session.current) {
+    isDragging = false;
+    resetCardPosition();
+    return;
+  }
+  isDragging = false; 
+  flashCard.classList.remove("dragging");
+  flashCard.releasePointerCapture(e.pointerId);
   
   if (!session.awaitingNext) {
     if (currentX > 85) submitAnswer(true);
@@ -1182,22 +1290,18 @@ function onDragEnd() {
     else resetCardPosition(); 
   }
 }
-function onDragCancel() {
+function onDragCancel(e) {
   if (!isDragging) return;
-  isDragging = false; flashCard.classList.remove("dragging");
+  isDragging = false; 
+  flashCard.classList.remove("dragging");
   resetCardPosition();
-}
-function resetCardPosition() {
-  flashCard.style.transform = "";
+  if(e) flashCard.releasePointerCapture(e.pointerId);
 }
 
-flashCard.addEventListener("touchstart", e => onDragStart(e.touches[0].clientX), { passive: true });
-flashCard.addEventListener("touchmove", e => onDragMove(e.touches[0].clientX), { passive: true });
-flashCard.addEventListener("touchend", onDragEnd);
-flashCard.addEventListener("touchcancel", onDragCancel); 
-flashCard.addEventListener("mousedown", e => onDragStart(e.clientX));
-window.addEventListener("mousemove", e => onDragMove(e.clientX));
-window.addEventListener("mouseup", onDragEnd);
+flashCard.addEventListener("pointerdown", onDragStart, { passive: true });
+flashCard.addEventListener("pointermove", onDragMove, { passive: true });
+flashCard.addEventListener("pointerup", onDragEnd);
+flashCard.addEventListener("pointercancel", onDragCancel); 
 
 document.getElementById("btn-ans-o").onclick = () => submitAnswer(true);
 document.getElementById("btn-ans-x").onclick = () => submitAnswer(false);
@@ -1227,17 +1331,19 @@ document.addEventListener("keydown", e => {
   }
 });
 
-document.getElementById("start-normal").onclick = (e) => startQuiz("全問出題 (通常)", ALL_QUESTIONS, false);
-document.getElementById("start-quick10").onclick = (e) => startQuiz("サクッとテスト", shuffle(ALL_QUESTIONS).slice(0, 10), false);
-document.getElementById("start-endless").onclick = (e) => startQuiz("エンドレス特訓", shuffle(ALL_QUESTIONS), true);
-document.getElementById("start-weak").onclick = (e) => startQuiz("うろ覚え特訓", shuffle(ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect")), true);
+document.getElementById("start-normal").onclick = () => startQuiz("全問出題 (通常)", ALL_QUESTIONS, false, "normal");
+document.getElementById("start-quick10").onclick = () => startQuiz("サクッとテスト", shuffle(ALL_QUESTIONS).slice(0, 10), false, "quick10");
+document.getElementById("start-endless").onclick = () => startQuiz("エンドレス特訓", shuffle(ALL_QUESTIONS), true, "endless");
+document.getElementById("start-weak").onclick = () => startQuiz("うろ覚え特訓", shuffle(ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect")), true, "weakness");
 
 document.getElementById("btn-sound").onclick = (e) => {
-  soundEnabled = !soundEnabled; e.target.textContent = soundEnabled ? "🔊 音ON" : "🔇 音OFF";
+  soundEnabled = !soundEnabled; 
+  e.target.textContent = soundEnabled ? "🔊 音ON" : "🔇 音OFF";
+  try { localStorage.setItem("otsu4_sound_setting", soundEnabled); } catch(err){}
 };
 
 document.getElementById("btn-reset").onclick = () => {
-  if (confirm("学習履歴をリセットしますか？")) { progress = {}; saveProgress(); renderHome(); }
+  if (confirm("学習履歴をリセットしますか？")) { progress = Object.create(null); saveProgress(); renderHome(); }
 };
 
 document.querySelectorAll(".btn-report-q").forEach(btn => {
@@ -1341,14 +1447,19 @@ function trapFocus(e) {
   }
 }
 
-let searchTimeout = null;
+let lastSearchVal = "";
 function handleSearchInput(e) {
   const val = e.target.value;
   renderBrowser(val);
   
   if (searchTimeout) clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    if (val.trim().length > 0) trackGA4('search_use', { search_type: 'question' });
+    // 実際に有効な検索文字列が更新された場合のみGA4へ送信
+    const trimmed = val.trim();
+    if (trimmed.length > 0 && trimmed !== lastSearchVal) {
+      lastSearchVal = trimmed;
+      trackGA4('search_use', { search_type: 'question' });
+    }
   }, 1000);
 }
 
@@ -1359,11 +1470,11 @@ function openBrowser() {
   modal.classList.remove("hidden");
   shell.setAttribute("aria-hidden", "true");
   shell.setAttribute("inert", ""); 
+  document.body.style.overflow = "hidden";
   document.getElementById("browser-search").focus();
   modal.addEventListener('keydown', trapFocus);
   
-  // GA4
-  showView("search");
+  trackGA4('app_screen_view', { screen_name: "search" });
 }
 
 function closeBrowser() {
@@ -1371,11 +1482,14 @@ function closeBrowser() {
   modal.classList.add("hidden");
   shell.removeAttribute("aria-hidden");
   shell.removeAttribute("inert");
+  document.body.style.overflow = "";
   modal.removeEventListener('keydown', trapFocus);
   if (lastFocusedElement) lastFocusedElement.focus();
   
-  const isQuizHidden = document.getElementById("view-quiz").classList.contains("hidden");
-  showView(isQuizHidden ? "home" : "quiz");
+  // 安全に元の画面へ戻る（以前の表示画面を記憶しておき復帰）
+  const restoreView = previousViewName && previousViewName !== 'search' ? previousViewName : 'home';
+  // showView内でGA4トラッキングも行われる
+  showView(restoreView);
 }
 
 document.getElementById("btn-browse").onclick = openBrowser;
