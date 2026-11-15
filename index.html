@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>シン・超速！危険物ちゃんねる 乙４フラッシュ</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-G7NLCZTH7F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  // ページビューは手動で制御するため send_page_view: false を設定
+  gtag('config', 'G-G7NLCZTH7F', { 'send_page_view': false });
+</script>
 <style>
   /* ==========================================
      ブランドカラーパレット
@@ -45,7 +54,7 @@
   .c-blue { color: var(--c-blue); }
 
   /* ==========================================
-     ヘッダー (アンケートリンク追加・スマホ対応調整)
+     ヘッダー
      ========================================== */
   header {
     background: var(--c-navy); color: #fff; padding: 12px 16px;
@@ -83,12 +92,10 @@
   .hero-title { font-size: 24px; font-weight: 900; margin: 0 0 8px 0; line-height: 1.3; position: relative; z-index: 1; letter-spacing: 0.5px; }
   .hero-subtitle { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 24px; position: relative; z-index: 1; }
   
-  /* タブUI */
   .subject-tabs { display: flex; background: rgba(255,255,255,0.1); border-radius: 999px; padding: 4px; margin-bottom: 24px; position: relative; z-index: 1; }
   .subject-tab { flex: 1; background: transparent; border: none; color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 800; padding: 10px 0; border-radius: 999px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
   .subject-tab.active { background: var(--c-yellow); color: var(--c-navy); }
 
-  /* 進捗スタッツ（性質タブのみ表示） */
   .hero-stats { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .stat-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: #fff; }
@@ -106,11 +113,19 @@
      ========================================== */
   .home-content { padding: 32px 20px 20px; display: flex; flex-direction: column; gap: 16px; background: var(--c-bg); flex: 1; }
 
-  .beta-notice { background: var(--c-card); border-left: 4px solid var(--c-yellow); border-radius: 12px; padding: 14px; box-shadow: var(--shadow-sm); }
-  .beta-notice-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .beta-badge { background: var(--c-yellow); color: var(--c-navy); font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
-  .beta-title { font-size: 12px; font-weight: 800; color: var(--c-text-main); }
-  .beta-text { font-size: 11px; color: var(--c-text-sub); line-height: 1.6; font-weight: 600; }
+  /* β版お知らせ (アンケート特化) */
+  .beta-notice { background: var(--c-card); border-top: 4px solid var(--c-yellow); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
+  .beta-notice-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--c-border); }
+  .beta-badge { background: var(--c-yellow); color: var(--c-navy); font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+  .beta-title { font-size: 14px; font-weight: 900; color: var(--c-navy); }
+  .beta-text { font-size: 11.5px; color: var(--c-text-main); line-height: 1.6; font-weight: 600; }
+  .beta-text p { margin: 0 0 8px 0; }
+  .beta-text ul { margin: 0 0 12px 0; padding-left: 20px; color: var(--c-text-sub); }
+  .beta-text li { margin-bottom: 4px; }
+  .beta-highlight { text-align: center; font-size: 13px; font-weight: 900; color: var(--c-navy); margin: 16px 0 12px; padding: 10px; background: rgba(49,89,217,0.05); border-radius: 8px; border: 1px solid rgba(49,89,217,0.1); }
+  .beta-survey-btn { display: block; text-align: center; background: var(--c-yellow); color: var(--c-navy); font-size: 14px; font-weight: 900; text-decoration: none; padding: 14px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,216,61,0.3); margin-bottom: 16px; transition: transform 0.1s; }
+  .beta-survey-btn:active { transform: scale(0.98); }
+  .beta-text .beta-sub-text { font-size: 10.5px; color: var(--c-text-sub); line-height: 1.5; margin: 0; padding-top: 12px; border-top: 1px dashed var(--c-border); }
 
   .mode-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .mode-btn { background: var(--c-card); border: 1px solid var(--c-border); border-radius: 16px; padding: 16px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow-sm); transition: transform 0.1s, box-shadow 0.2s; position: relative; overflow: hidden; }
@@ -250,7 +265,7 @@
     <div class="brand">🔥 シン・超速！<br>危険物ちゃんねる Presents</div>
     <div class="header-actions">
       <button class="icon-btn" id="btn-browse" aria-label="一覧検索を開く" aria-haspopup="dialog">一覧検索</button>
-      <a href="https://forms.gle/Ng7J8aE8H8WfmiiDA" target="_blank" rel="noopener noreferrer" class="icon-btn">アンケート</a>
+      <a href="https://forms.gle/Ng7J8aE8H8WfmiiDA" target="_blank" rel="noopener noreferrer" class="icon-btn" id="btn-survey">アンケート</a>
       <button class="icon-btn" id="btn-sound" aria-label="音声を切り替える">🔊 音ON</button>
     </div>
   </header>
@@ -307,30 +322,47 @@
       
       <!-- タブ: 性質 (メイン内) -->
       <div id="main-content-seishitsu" class="main-tab-content">
+        
+        <!-- β版公開中・ご協力のお願い -->
         <div class="beta-notice">
           <div class="beta-notice-header">
             <span class="beta-badge">β版公開中</span>
             <span class="beta-title">ご協力のお願い</span>
           </div>
           <div class="beta-text">
-            問題文や解説に分かりにくい点が見つかる可能性があります。「この問題、間違っているかも？」と感じた場合は、問題画面の「問題を報告」ボタンからお知らせください。より使いやすいアプリへ改善していきます。
+            <p>このアプリは現在、ベータ版として公開しています。</p>
+            <p>より使いやすく、役に立つ乙4学習アプリに育てていくため、実際に使っていただいた皆さまのご意見・ご感想を募集しています。</p>
+            <p>特に、アンケートへのご協力をお願いします！</p>
+            <ul>
+              <li>使いやすかったか</li>
+              <li>問題や解説は分かりやすかったか</li>
+              <li>追加してほしい機能はあるか</li>
+              <li>使っていて困ったことはないか</li>
+            </ul>
+            <p>率直なご意見をお聞かせください。いただいた回答は、今後の改善に活用します。</p>
+            
+            <div class="beta-highlight">あなたの回答が、このアプリを育てます。</div>
+            
+            <a href="https://forms.gle/Ng7J8aE8H8WfmiiDA" target="_blank" rel="noopener noreferrer" class="beta-survey-btn" id="btn-survey-main">アンケートに回答する →</a>
+            
+            <p class="beta-sub-text">また、問題文・正解・解説などに誤りや分かりにくい点を見つけた場合は、問題画面の『問題を報告』からお知らせください。</p>
           </div>
         </div>
 
         <div class="mode-grid">
-          <button class="mode-btn normal-mode" id="start-normal">
+          <button class="mode-btn normal-mode" id="start-normal" data-mode="normal">
             <div class="mode-title"><span>📖 全問出題 (通常モード)</span><span class="pill-count" id="normal-count">0問</span></div>
             <div class="mode-desc">全問題を順番に出題。間違えてもループしません。</div>
           </button>
-          <button class="mode-btn primary-mode" id="start-quick10">
+          <button class="mode-btn primary-mode" id="start-quick10" data-mode="quick10">
             <div class="mode-title"><span>⚡ サクッとテスト</span><span class="pill-count" id="quick-count">10問</span></div>
             <div class="mode-desc">ランダムに出題。隙間時間の腕試しに最適です。</div>
           </button>
-          <button class="mode-btn hell-mode" id="start-endless">
+          <button class="mode-btn hell-mode" id="start-endless" data-mode="endless">
             <div class="mode-title"><span>🔥 エンドレス特訓</span><span class="pill-count">∞</span></div>
             <div class="mode-desc">全問題をシャッフル。3連続正解になるまで出題し続けます。</div>
           </button>
-          <button class="mode-btn" id="start-weak" style="border-color:var(--c-blue);">
+          <button class="mode-btn" id="start-weak" style="border-color:var(--c-blue);" data-mode="weakness">
             <div class="mode-title"><span class="c-blue">🎯 うろ覚え特訓</span><span class="pill-count" id="weak-count">0問</span></div>
             <div class="mode-desc">完璧ではない（未学習・うろ覚え）問題だけを集中特訓。</div>
           </button>
@@ -457,6 +489,19 @@
 </div>
 
 <script>
+// ==========================================
+// 0. GA4 トラッキング処理
+// ==========================================
+function trackGA4(eventName, params) {
+  try {
+    if (typeof gtag === 'function') {
+      gtag('event', eventName, params);
+    }
+  } catch (e) {
+    // オフラインやブロック環境でも学習を妨げないように握り潰す
+  }
+}
+
 // ==========================================
 // 1. 設定・状態管理
 // ==========================================
@@ -614,7 +659,7 @@ async function initApp() {
   processPendingReports();
   loadingOverlay.classList.add("hidden");
   renderHome();
-  document.getElementById("view-home").classList.remove("hidden");
+  showView("home"); // Init表示用
 }
 
 function showToast(msg) {
@@ -656,6 +701,9 @@ async function reportIssue(questionId) {
   updateReportButtonState();
   const reportId = "req_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
   const payload = { report_id: reportId, question_id: questionId };
+
+  // GA4
+  trackGA4('report_click', { source: 'quiz' });
 
   try {
     const controller = new AbortController();
@@ -853,6 +901,8 @@ function showView(name) {
     const el = document.getElementById(`view-${v}`);
     if (el) el.classList.toggle("hidden", v !== name);
   });
+  // GA4
+  trackGA4('app_screen_view', { screen_name: name });
 }
 
 // タブ切り替えロジック
@@ -884,8 +934,11 @@ function startQuiz(modeName, questionList, loopUntilMastered) {
   clearQuizTimer(); 
   
   const uniqueCount = new Set(questionList.map(q => q.id)).size;
+  const modeKey = document.activeElement ? document.activeElement.getAttribute('data-mode') || 'retry' : 'retry';
+  
   session = {
     modeName, loopUntilMastered, initialTotal: uniqueCount,
+    modeKey: modeKey,
     queue: questionList.map(q => ({ ...q, isRevenge: false })),
     completedCount: 0, firstTryCorrect: 0, seenThisSession: new Set(),
     missedThisSession: new Map(), startTime: Date.now(),
@@ -893,6 +946,10 @@ function startQuiz(modeName, questionList, loopUntilMastered) {
   };
   document.getElementById("quiz-mode-label").textContent = modeName;
   showView("quiz");
+  
+  // GA4
+  trackGA4('study_start', { study_mode: modeKey });
+  
   renderCurrentCard();
 }
 
@@ -1009,6 +1066,9 @@ function submitAnswer(userChoice) {
     document.getElementById("feedback-box").classList.remove("hidden");
     updateReportButtonState();
     document.getElementById("btn-next").focus();
+    
+    // GA4
+    trackGA4('explanation_view', { source: 'quiz' });
   }
 }
 
@@ -1060,6 +1120,10 @@ function finishQuiz() {
     
     rBtn.onclick = () => startQuiz("間違えた問題リベンジ", shuffle(missedArr), true);
   }
+  
+  // GA4
+  trackGA4('study_complete', { study_mode: session.modeKey });
+  
   session = null;
   showView("result");
 }
@@ -1091,14 +1155,12 @@ function onDragEnd() {
   isDragging = false; flashCard.classList.remove("dragging");
   
   if (!session.awaitingNext) {
-    // 回答前
     if (currentX > 85) submitAnswer(true);
     else if (currentX < -85) submitAnswer(false);
     else resetCardPosition();
   } else {
-    // 回答後（解説画面でのスワイプ）
-    if (currentX > 85) nextCard(); // 右スワイプで次へ
-    else resetCardPosition(); // 左スワイプや閾値未満は何もしない
+    if (currentX > 85) nextCard(); 
+    else resetCardPosition(); 
   }
 }
 function onDragCancel() {
@@ -1146,10 +1208,10 @@ document.addEventListener("keydown", e => {
   }
 });
 
-document.getElementById("start-normal").onclick = () => startQuiz("全問出題 (通常)", ALL_QUESTIONS, false);
-document.getElementById("start-quick10").onclick = () => startQuiz("サクッとテスト", shuffle(ALL_QUESTIONS).slice(0, 10), false);
-document.getElementById("start-endless").onclick = () => startQuiz("エンドレス特訓", shuffle(ALL_QUESTIONS), true);
-document.getElementById("start-weak").onclick = () => startQuiz("うろ覚え特訓", shuffle(ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect")), true);
+document.getElementById("start-normal").onclick = (e) => startQuiz("全問出題 (通常)", ALL_QUESTIONS, false);
+document.getElementById("start-quick10").onclick = (e) => startQuiz("サクッとテスト", shuffle(ALL_QUESTIONS).slice(0, 10), false);
+document.getElementById("start-endless").onclick = (e) => startQuiz("エンドレス特訓", shuffle(ALL_QUESTIONS), true);
+document.getElementById("start-weak").onclick = (e) => startQuiz("うろ覚え特訓", shuffle(ALL_QUESTIONS.filter(q => getStatus(q.id) !== "perfect")), true);
 
 document.getElementById("btn-sound").onclick = (e) => {
   soundEnabled = !soundEnabled; e.target.textContent = soundEnabled ? "🔊 音ON" : "🔇 音OFF";
@@ -1165,6 +1227,17 @@ document.querySelectorAll(".btn-report-q").forEach(btn => {
     reportIssue(session.current.id);
   };
 });
+
+// GA4 Survey Link Tracking
+document.getElementById("btn-survey").addEventListener("click", () => {
+  trackGA4('survey_click', { link_type: 'google_forms' });
+});
+const btnSurveyMain = document.getElementById("btn-survey-main");
+if (btnSurveyMain) {
+  btnSurveyMain.addEventListener("click", () => {
+    trackGA4('survey_click', { link_type: 'google_forms' });
+  });
+}
 
 // ==========================================
 // 9. 検索・一覧画面 (Modal & A11y Focus Trap)
@@ -1249,6 +1322,17 @@ function trapFocus(e) {
   }
 }
 
+let searchTimeout = null;
+function handleSearchInput(e) {
+  const val = e.target.value;
+  renderBrowser(val);
+  
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    if (val.trim().length > 0) trackGA4('search_use', { search_type: 'question' });
+  }, 1000);
+}
+
 function openBrowser() {
   lastFocusedElement = document.activeElement;
   renderBrowser();
@@ -1258,6 +1342,9 @@ function openBrowser() {
   shell.setAttribute("inert", ""); 
   document.getElementById("browser-search").focus();
   modal.addEventListener('keydown', trapFocus);
+  
+  // GA4
+  showView("search");
 }
 
 function closeBrowser() {
@@ -1267,11 +1354,14 @@ function closeBrowser() {
   shell.removeAttribute("inert");
   modal.removeEventListener('keydown', trapFocus);
   if (lastFocusedElement) lastFocusedElement.focus();
+  
+  const isQuizHidden = document.getElementById("view-quiz").classList.contains("hidden");
+  showView(isQuizHidden ? "home" : "quiz");
 }
 
 document.getElementById("btn-browse").onclick = openBrowser;
 document.getElementById("btn-close-browser").onclick = closeBrowser;
-document.getElementById("browser-search").addEventListener("input", e => renderBrowser(e.target.value));
+document.getElementById("browser-search").addEventListener("input", handleSearchInput);
 
 window.addEventListener("DOMContentLoaded", initApp);
 </script>
